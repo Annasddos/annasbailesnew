@@ -44,12 +44,15 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {string} title - Judul notifikasi.
      */
     function showToast(message, type = 'info', title = 'Notifikasi') {
-        toastTitle.textContent = title;
-        toastMessage.textContent = message;
-        toastElement.className = `toast show ${type}`;
-        setTimeout(() => {
-            toastElement.className = 'toast';
-        }, 3000); // Sembunyikan setelah 3 detik
+        // Optimasi: Memastikan animasi toast tidak mengganggu render lain
+        requestAnimationFrame(() => {
+            toastTitle.textContent = title;
+            toastMessage.textContent = message;
+            toastElement.className = `toast show ${type}`;
+            setTimeout(() => {
+                toastElement.className = 'toast';
+            }, 3000); // Sembunyikan setelah 3 detik
+        });
     }
 
     /**
@@ -105,6 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const splashDuration = 2000; // Durasi splash screen: 2 detik (lebih cepat)
     loadingBar.style.animationDuration = `${splashDuration / 1000}s`;
 
+    // Pastikan splash screen menghilang baru tampil notifikasi motivasi
     setTimeout(() => {
         splashScreen.classList.add('hidden');
         splashScreen.addEventListener('transitionend', () => {
@@ -116,13 +120,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Logika Pemberitahuan Motivasi ---
     function showMotivationNotification() {
         motivationNotification.classList.add('show');
+        // Set timeout agar notifikasi menghilang lebih cepat
         setTimeout(() => {
             motivationNotification.classList.remove('show');
             motivationNotification.addEventListener('transitionend', () => {
-                motivationNotification.remove(); // Hapus notifikasi setelah hilang
+                motivationNotification.remove(); // Hapus notifikasi setelah hilang sepenuhnya
                 checkLoginStatus(); // Cek status login setelah notifikasi hilang
             }, { once: true });
-        }, 3000); // Tampilkan selama 3 detik, lalu mulai transisi menghilang
+        }, 2000); // Tampilkan selama 2 detik, lalu mulai transisi menghilang
     }
 
     // --- Logika Autentikasi (Login/Daftar) ---
@@ -133,9 +138,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (loggedInUser) {
             loginRegisterContainer.style.display = 'none';
             mainContainer.style.display = 'flex';
-            mainContainer.classList.add('active'); // Aktifkan animasi masuk untuk main container
-            userStatusSection.classList.add('visible'); // Tampilkan status pengguna
-            socialMediaFixedContainer.classList.add('visible'); // Tampilkan ikon sosmed mengambang
+            // Gunakan requestAnimationFrame untuk animasi performa tinggi
+            requestAnimationFrame(() => {
+                mainContainer.classList.add('active'); // Aktifkan animasi masuk untuk main container
+                userStatusSection.classList.add('visible'); // Tampilkan status pengguna
+                socialMediaFixedContainer.classList.add('visible'); // Tampilkan ikon sosmed mengambang
+            });
             myUserIdElement.textContent = users[loggedInUser].id; // Tampilkan ID pengguna
             updateStats(); // Perbarui statistik dinamis
             // Mainkan audio saat login berhasil atau langsung masuk
@@ -193,9 +201,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 showToast('Login berhasil!', 'success', 'Selamat Datang');
                 loginRegisterContainer.style.display = 'none';
                 mainContainer.style.display = 'flex';
-                mainContainer.classList.add('active');
-                userStatusSection.classList.add('visible');
-                socialMediaFixedContainer.classList.add('visible');
+                // Gunakan requestAnimationFrame untuk animasi performa tinggi
+                requestAnimationFrame(() => {
+                    mainContainer.classList.add('active');
+                    userStatusSection.classList.add('visible');
+                    socialMediaFixedContainer.classList.add('visible');
+                });
                 myUserIdElement.textContent = users[loggedInUser].id;
                 updateStats();
                 if (gatewayAudio) {
@@ -214,6 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast('Anda telah logout.', 'info', 'Info');
         loginRegisterContainer.style.display = 'block';
         mainContainer.style.display = 'none';
+        // Nonaktifkan animasi saat logout
         mainContainer.classList.remove('active');
         userStatusSection.classList.remove('visible');
         socialMediaFixedContainer.classList.remove('visible');
@@ -250,6 +262,8 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {HTMLElement} slideElement - Elemen slide yang akan dibuka.
      */
     function openSlide(slideElement) {
+        // Sembunyikan semua elemen di luar slide saat dibuka
+        document.body.classList.add('slide-active');
         slideElement.classList.add('active');
         document.body.style.overflow = 'hidden'; // Mencegah scrolling body saat slide terbuka
     }
@@ -259,6 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {HTMLElement} slideElement - Elemen slide yang akan ditutup.
      */
     function closeSlide(slideElement) {
+        document.body.classList.remove('slide-active');
         slideElement.classList.remove('active');
         document.body.style.overflow = ''; // Mengembalikan scrolling body
     }

@@ -86,7 +86,8 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    overflow-x: hidden; /* Pastikan tidak ada scroll horizontal */
+    /* Memastikan tidak ada scroll horizontal atau bagian yang terpotong */
+    overflow: hidden; 
     position: relative;
     transition: background-color 0.5s ease, color 0.5s ease;
     -webkit-font-smoothing: antialiased; /* Font lebih halus, anti-blur */
@@ -228,7 +229,7 @@ a {
     z-index: 1100; /* Lebih tinggi dari splash screen saat aktif */
     opacity: 0;
     visibility: hidden;
-    transition: all 0.5s ease-in-out;
+    transition: all 0.4s ease-in-out; /* Lebih cepat */
     border: 2px solid var(--notification-border);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
@@ -268,6 +269,8 @@ a {
     color: var(--text-color);
     text-shadow: 0 0 5px rgba(0, 240, 255, 0.3);
     line-height: 1.5;
+    -webkit-font-smoothing: antialiased; /* Anti-blur */
+    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
 }
 
 
@@ -761,13 +764,12 @@ a {
 }
 
 /* --- Slide-out Panels (Pembayaran & Media Sosial) --- */
-.payment-slide {
+.payment-slide, .social-media-slide {
     position: fixed;
     top: 0;
     right: 0;
-    width: 100%;
-    max-width: 500px;
-    height: 100%;
+    width: 100%; /* Pastikan menutupi 100% lebar */
+    height: 100%; /* Pastikan menutupi 100% tinggi */
     background-color: var(--card-background);
     box-shadow: -10px 0 30px rgba(0, 0, 0, 0.4);
     transform: translateX(100%);
@@ -777,10 +779,10 @@ a {
     flex-direction: column;
     border-left: 1px solid var(--border-color);
     padding: 20px;
-    overflow-y: auto;
+    overflow-y: auto; /* Memungkinkan scroll jika konten terlalu panjang */
 }
 
-.payment-slide.active {
+.payment-slide.active, .social-media-slide.active {
     transform: translateX(0);
 }
 
@@ -797,7 +799,7 @@ a {
     transition: opacity 0.5s ease, visibility 0.5s ease;
 }
 
-.payment-slide.active + .slide-backdrop {
+.payment-slide.active + .slide-backdrop, .social-media-slide.active + .slide-backdrop {
     opacity: 1;
     visibility: visible;
 }
@@ -1318,8 +1320,10 @@ a {
         padding: 15px;
     }
 
+    /* Ini yang penting untuk full screen pada slide-out di mobile */
     .payment-slide, .social-media-slide {
-        max-width: 100%;
+        width: 100%; /* Pastikan 100% lebar */
+        max-width: 100%; /* Hilangkan batasan max-width */
         border-radius: 0;
     }
 
