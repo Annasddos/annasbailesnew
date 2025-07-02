@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Mendapatkan elemen-elemen DOM yang dibutuhkan
     const splashScreen = document.getElementById('splashScreen');
     const loadingBar = document.getElementById('loadingBar');
-    const motivationNotification = document.getElementById('motivationNotification');
+    const infoNotification = document.getElementById('infoNotification'); // Ganti nama ID
     const loginRegisterContainer = document.getElementById('loginRegisterContainer');
     const mainContainer = document.querySelector('main.container');
     const formTitle = document.getElementById('formTitle');
@@ -27,8 +27,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const socialMediaFixedContainer = document.querySelector('.social-media-container.fixed-top-right');
     const gatewayAudio = document.getElementById('gatewayAudio');
     const toastElement = document.getElementById('toast');
-    const toastTitle = toastElement.querySelector('.toast-title');
-    const toastMessage = toastElement.querySelector('.toast-message');
+    const toastTitle = toastElement ? toastElement.querySelector('.toast-title') : null;
+    const toastMessage = toastElement ? toastElement.querySelector('.toast-message') : null;
+
+    // Tambahkan referensi untuk elemen statistik (untuk memastikan tidak ada error jika null)
+    const uptimeValue = document.getElementById('uptimeValue');
+    const supportValue = document.getElementById('supportValue');
+    const encryptionValue = document.getElementById('encryptionValue');
+
 
     let isRegisterMode = false;
     // Memuat data pengguna dari Local Storage
@@ -44,13 +50,13 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {string} title - Judul notifikasi.
      */
     function showToast(message, type = 'info', title = 'Notifikasi') {
-        requestAnimationFrame(() => { // Optimasi DOM manipulation
+        requestAnimationFrame(() => { 
             if (toastTitle) toastTitle.textContent = title;
             if (toastMessage) toastMessage.textContent = message;
             if (toastElement) {
                 toastElement.className = `toast show ${type}`;
                 setTimeout(() => {
-                    requestAnimationFrame(() => { // Optimasi DOM manipulation
+                    requestAnimationFrame(() => { 
                         toastElement.className = 'toast';
                     });
                 }, 3000); // Sembunyikan setelah 3 detik
@@ -81,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * Memperbarui nilai statistik Uptime, Support, dan Encryption.
      */
     function updateStats() {
-        if (!uptimeValue || !supportValue || !encryptionValue) return;
+        if (!uptimeValue || !supportValue || !encryptionValue) return; // Penanganan null/undefined
 
         const currentHour = new Date().getHours();
         const currentDay = new Date().getDay(); 
@@ -105,35 +111,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setTimeout(() => {
         if (splashScreen) {
-            requestAnimationFrame(() => { // Optimasi DOM manipulation
+            requestAnimationFrame(() => { 
                 splashScreen.classList.add('hidden');
                 splashScreen.addEventListener('transitionend', () => {
                     if (splashScreen) splashScreen.remove(); 
-                    showMotivationNotification(); 
+                    showInfoNotification(); // Tampilkan notifikasi info aplikasi
                 }, { once: true });
             });
         } else {
-            showMotivationNotification(); // Fallback if splashScreen doesn't exist
+            showInfoNotification(); // Fallback if splashScreen doesn't exist
         }
     }, splashDuration);
 
-    // --- Logika Pemberitahuan Motivasi ---
-    function showMotivationNotification() {
-        if (motivationNotification) {
-            requestAnimationFrame(() => { // Optimasi DOM manipulation
-                motivationNotification.classList.add('show');
+    // --- Logika Pemberitahuan Info Aplikasi (Menggantikan Motivasi) ---
+    function showInfoNotification() {
+        if (infoNotification) {
+            requestAnimationFrame(() => { 
+                infoNotification.classList.add('show');
                 setTimeout(() => {
-                    requestAnimationFrame(() => { // Optimasi DOM manipulation
-                        motivationNotification.classList.remove('show');
-                        motivationNotification.addEventListener('transitionend', () => {
-                            if (motivationNotification) motivationNotification.remove(); 
-                            checkLoginStatus(); 
+                    requestAnimationFrame(() => { 
+                        infoNotification.classList.remove('show');
+                        infoNotification.addEventListener('transitionend', () => {
+                            if (infoNotification) infoNotification.remove(); 
+                            checkLoginStatus(); // Cek status login setelah notifikasi hilang
                         }, { once: true });
                     });
                 }, 2000); // Tampilkan selama 2 detik, lalu mulai transisi menghilang
             });
         } else {
-            checkLoginStatus(); // Fallback if motivationNotification doesn't exist
+            checkLoginStatus(); // Fallback if infoNotification doesn't exist
         }
     }
 
@@ -152,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (myUserIdElement && users[loggedInUser]) myUserIdElement.textContent = users[loggedInUser].id;
             updateStats();
             if (gatewayAudio) {
-                gatewayAudio.play().catch(e => console.log("Audio play failed:", e));
+                gatewayAudio.play().catch(e => console.error("Audio play failed:", e));
             }
         } else {
             if (loginRegisterContainer) loginRegisterContainer.style.display = 'block';
@@ -213,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (myUserIdElement && users[loggedInUser]) myUserIdElement.textContent = users[loggedInUser].id;
                     updateStats();
                     if (gatewayAudio) {
-                        gatewayAudio.play().catch(e => console.log("Audio play failed:", e));
+                        gatewayAudio.play().catch(e => console.error("Audio play failed:", e));
                     }
                 } else {
                     showToast('Username atau password salah!', 'error', 'Gagal Login');
@@ -229,7 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showToast('Anda telah logout.', 'info', 'Info');
             if (loginRegisterContainer) loginRegisterContainer.style.display = 'block';
             if (mainContainer) mainContainer.style.display = 'none';
-            requestAnimationFrame(() => { // Optimasi DOM manipulation
+            requestAnimationFrame(() => { 
                 if (mainContainer) mainContainer.classList.remove('active');
                 if (userStatusSection) userStatusSection.classList.remove('visible');
                 if (socialMediaFixedContainer) socialMediaFixedContainer.classList.remove('visible');
@@ -238,7 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (passwordInput) passwordInput.value = '';
             if (paymentSlide) paymentSlide.classList.remove('active');
             if (socialMediaSlide) socialMediaSlide.classList.remove('active');
-            // Pastikan body overflow direset dengan benar setelah slide ditutup
+            // Tetapkan overflow dan touch-action untuk body
             document.body.style.overflow = 'hidden'; 
             document.body.style.touchAction = 'none';
         });
@@ -269,7 +275,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Logika Panel Slide-out (Pembayaran & Media Sosial) ---
     function openSlide(slideElement) {
         if (!slideElement) return;
-        requestAnimationFrame(() => { // Optimasi DOM manipulation
+        requestAnimationFrame(() => { 
+            // Mengunci scroll body saat slide aktif
             document.body.style.overflow = 'hidden';
             document.body.style.touchAction = 'none'; 
             slideElement.classList.add('active');
@@ -278,12 +285,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function closeSlide(slideElement) {
         if (!slideElement) return;
-        requestAnimationFrame(() => { // Optimasi DOM manipulation
+        requestAnimationFrame(() => { 
             slideElement.classList.remove('active');
             // Kembali mengatur body overflow setelah transisi selesai
             slideElement.addEventListener('transitionend', () => {
-                document.body.style.overflow = 'hidden'; // Tetap hidden untuk mencegah scroll keseluruhan
-                document.body.style.touchAction = 'none'; // Tetap none
+                document.body.style.overflow = 'hidden'; 
+                document.body.style.touchAction = 'none'; 
             }, { once: true });
         });
     }
