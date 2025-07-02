@@ -44,7 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {string} title - Judul notifikasi.
      */
     function showToast(message, type = 'info', title = 'Notifikasi') {
-        // Optimasi: Memastikan animasi toast tidak mengganggu render lain
         requestAnimationFrame(() => {
             toastTitle.textContent = title;
             toastMessage.textContent = message;
@@ -65,14 +64,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (username.toLowerCase() === 'annas') {
             return '12345678';
         }
-        // Hash sederhana untuk ID pengguna lain, pastikan 8 digit
         let hash = 0;
         for (let i = 0; i < username.length; i++) {
             const char = username.charCodeAt(i);
             hash = ((hash << 5) - hash) + char;
-            hash |= 0; // Ubah menjadi integer 32bit
+            hash |= 0; 
         }
-        // Pastikan ID selalu 8 digit
         return Math.abs(hash).toString().substring(0, 8).padEnd(8, '0');
     }
 
@@ -84,69 +81,58 @@ document.addEventListener('DOMContentLoaded', () => {
         const supportValue = document.getElementById('supportValue');
         const encryptionValue = document.getElementById('encryptionValue');
 
-        // Simulasi nilai dinamis
         const currentHour = new Date().getHours();
-        const currentDay = new Date().getDay(); // 0 untuk Minggu, 1 untuk Senin, dst.
+        const currentDay = new Date().getDay(); 
 
-        // Uptime: Selalu 99.9%
         uptimeValue.textContent = '99.9%';
 
-        // Support: Berubah sesuai hari (misal, lebih tinggi di hari kerja)
-        if (currentDay >= 1 && currentDay <= 5) { // Hari kerja (Senin-Jumat)
+        if (currentDay >= 1 && currentDay <= 5) { 
             supportValue.textContent = '24/7';
-        } else { // Akhir pekan (Sabtu-Minggu)
+        } else { 
             supportValue.textContent = '12/7';
         }
 
-        // Encryption: Berubah setiap hari (simulasi)
         const encryptionLevels = ['AES-256', 'RSA-4096', 'ECC-384', 'ChaCha20'];
         const dayOfMonth = new Date().getDate();
         encryptionValue.textContent = encryptionLevels[dayOfMonth % encryptionLevels.length];
     }
 
     // --- Logika Splash Screen ---
-    const splashDuration = 2000; // Durasi splash screen: 2 detik (lebih cepat)
+    const splashDuration = 1500; // Durasi splash screen lebih cepat: 1.5 detik
     loadingBar.style.animationDuration = `${splashDuration / 1000}s`;
 
-    // Pastikan splash screen menghilang baru tampil notifikasi motivasi
     setTimeout(() => {
         splashScreen.classList.add('hidden');
         splashScreen.addEventListener('transitionend', () => {
-            splashScreen.remove(); // Hapus dari DOM setelah animasi selesai
-            showMotivationNotification(); // Tampilkan notifikasi motivasi
+            splashScreen.remove(); 
+            showMotivationNotification(); 
         }, { once: true });
     }, splashDuration);
 
     // --- Logika Pemberitahuan Motivasi ---
     function showMotivationNotification() {
         motivationNotification.classList.add('show');
-        // Set timeout agar notifikasi menghilang lebih cepat
         setTimeout(() => {
             motivationNotification.classList.remove('show');
             motivationNotification.addEventListener('transitionend', () => {
-                motivationNotification.remove(); // Hapus notifikasi setelah hilang sepenuhnya
-                checkLoginStatus(); // Cek status login setelah notifikasi hilang
+                motivationNotification.remove(); 
+                checkLoginStatus(); 
             }, { once: true });
         }, 2000); // Tampilkan selama 2 detik, lalu mulai transisi menghilang
     }
 
     // --- Logika Autentikasi (Login/Daftar) ---
-    /**
-     * Memeriksa status login pengguna dan menampilkan UI yang sesuai.
-     */
     function checkLoginStatus() {
         if (loggedInUser) {
             loginRegisterContainer.style.display = 'none';
             mainContainer.style.display = 'flex';
-            // Gunakan requestAnimationFrame untuk animasi performa tinggi
             requestAnimationFrame(() => {
-                mainContainer.classList.add('active'); // Aktifkan animasi masuk untuk main container
-                userStatusSection.classList.add('visible'); // Tampilkan status pengguna
-                socialMediaFixedContainer.classList.add('visible'); // Tampilkan ikon sosmed mengambang
+                mainContainer.classList.add('active'); 
+                userStatusSection.classList.add('visible'); 
+                socialMediaFixedContainer.classList.add('visible'); 
             });
-            myUserIdElement.textContent = users[loggedInUser].id; // Tampilkan ID pengguna
-            updateStats(); // Perbarui statistik dinamis
-            // Mainkan audio saat login berhasil atau langsung masuk
+            myUserIdElement.textContent = users[loggedInUser].id;
+            updateStats();
             if (gatewayAudio) {
                 gatewayAudio.play().catch(e => console.log("Audio play failed:", e));
             }
@@ -158,7 +144,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Mengubah mode antara Login dan Daftar
     toggleAuthMode.addEventListener('click', () => {
         isRegisterMode = !isRegisterMode;
         formTitle.textContent = isRegisterMode ? 'Daftar Akun Baru' : 'Login';
@@ -166,7 +151,6 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleAuthMode.textContent = isRegisterMode ? 'Sudah punya akun? Login' : 'Belum punya akun? Buat akun baru';
     });
 
-    // Menangani aksi Login atau Daftar
     authButton.addEventListener('click', () => {
         const username = usernameInput.value.trim();
         const password = passwordInput.value.trim();
@@ -177,7 +161,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (isRegisterMode) {
-            // Logika Pendaftaran
             if (users[username]) {
                 showToast('Username sudah terdaftar!', 'error', 'Gagal');
             } else {
@@ -185,7 +168,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 users[username] = { password: password, id: userId };
                 localStorage.setItem('users', JSON.stringify(users));
                 showToast('Pendaftaran berhasil! Silakan login.', 'success', 'Sukses');
-                // Kembali ke mode login setelah daftar
                 isRegisterMode = false;
                 formTitle.textContent = 'Login';
                 authButton.textContent = 'Login';
@@ -194,14 +176,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 passwordInput.value = '';
             }
         } else {
-            // Logika Login
             if (users[username] && users[username].password === password) {
                 loggedInUser = username;
                 localStorage.setItem('loggedInUser', loggedInUser);
                 showToast('Login berhasil!', 'success', 'Selamat Datang');
                 loginRegisterContainer.style.display = 'none';
                 mainContainer.style.display = 'flex';
-                // Gunakan requestAnimationFrame untuk animasi performa tinggi
                 requestAnimationFrame(() => {
                     mainContainer.classList.add('active');
                     userStatusSection.classList.add('visible');
@@ -218,20 +198,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Menangani aksi Logout
     logoutButton.addEventListener('click', () => {
         loggedInUser = null;
         localStorage.removeItem('loggedInUser');
         showToast('Anda telah logout.', 'info', 'Info');
         loginRegisterContainer.style.display = 'block';
         mainContainer.style.display = 'none';
-        // Nonaktifkan animasi saat logout
         mainContainer.classList.remove('active');
         userStatusSection.classList.remove('visible');
         socialMediaFixedContainer.classList.remove('visible');
         usernameInput.value = '';
         passwordInput.value = '';
-        // Tutup slide yang mungkin terbuka saat logout
         paymentSlide.classList.remove('active');
         socialMediaSlide.classList.remove('active');
     });
@@ -257,25 +234,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Logika Panel Slide-out (Pembayaran & Media Sosial) ---
-    /**
-     * Membuka panel slide-out.
-     * @param {HTMLElement} slideElement - Elemen slide yang akan dibuka.
-     */
     function openSlide(slideElement) {
-        // Sembunyikan semua elemen di luar slide saat dibuka
-        document.body.classList.add('slide-active');
+        // Mengunci scroll body saat slide aktif
+        document.body.style.overflow = 'hidden';
+        document.body.style.touchAction = 'none'; // Mencegah geser/zoom pada touch devices
+
+        // Pastikan slide menutupi seluruh layar
+        slideElement.style.width = '100vw';
+        slideElement.style.height = '100vh';
         slideElement.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Mencegah scrolling body saat slide terbuka
     }
 
-    /**
-     * Menutup panel slide-out.
-     * @param {HTMLElement} slideElement - Elemen slide yang akan ditutup.
-     */
     function closeSlide(slideElement) {
-        document.body.classList.remove('slide-active');
+        // Mengembalikan scroll body saat slide tidak aktif
+        document.body.style.overflow = 'hidden'; // Tetap hidden untuk mencegah scroll keseluruhan
+        document.body.style.touchAction = 'none'; // Tetap none
+        
         slideElement.classList.remove('active');
-        document.body.style.overflow = ''; // Mengembalikan scrolling body
+        // Mungkin perlu delay sedikit sebelum mengembalikan overflow, tergantung transisi CSS
+        setTimeout(() => {
+            // Karena body sudah fixed dan overflow hidden, tidak perlu mengubah ini
+            // Ini akan menjaga anti-scroll dan anti-zoom di seluruh aplikasi
+        }, 500); // Sesuaikan dengan durasi transisi slide-out
     }
 
     openPaymentSlideBtn.addEventListener('click', () => openSlide(paymentSlide));
@@ -284,7 +264,6 @@ document.addEventListener('DOMContentLoaded', () => {
     openSosmedSlideBtn.addEventListener('click', () => openSlide(socialMediaSlide));
     closeSosmedSlideBtn.addEventListener('click', () => closeSlide(socialMediaSlide));
 
-    // Menutup slide saat mengklik di luar area slide (backdrop)
     document.querySelectorAll('.slide-backdrop').forEach(backdrop => {
         backdrop.addEventListener('click', (event) => {
             if (event.target === backdrop) {
@@ -314,7 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const imageUrl = qrImage.src;
         const link = document.createElement('a');
         link.href = imageUrl;
-        link.download = 'QRIS_KepfoЯannaS.jpg'; // Nama file saat diunduh
+        link.download = 'QRIS_KepfoЯannaS.jpg'; 
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -323,17 +302,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Efek Latar Belakang Partikel ---
     const particlesContainer = document.getElementById('particles');
-    const numParticles = 50; // Jumlah partikel yang akan dibuat
+    const numParticles = 50; 
 
     for (let i = 0; i < numParticles; i++) {
         const particle = document.createElement('div');
         particle.classList.add('particle');
-        const size = Math.random() * 5 + 2; // Ukuran antara 2px dan 7px
+        const size = Math.random() * 5 + 2; 
         particle.style.width = `${size}px`;
         particle.style.height = `${size}px`;
         particle.style.left = `${Math.random() * 100}%`;
-        particle.style.animationDuration = `${Math.random() * 10 + 5}s`; // Durasi animasi 5-15 detik
-        particle.style.animationDelay = `${Math.random() * 5}s`; // Penundaan acak
+        particle.style.animationDuration = `${Math.random() * 10 + 5}s`; 
+        particle.style.animationDelay = `${Math.random() * 5}s`; 
         particlesContainer.appendChild(particle);
     }
 });

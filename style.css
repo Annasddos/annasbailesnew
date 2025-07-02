@@ -73,6 +73,10 @@
 
 html {
     scroll-behavior: smooth;
+    /* Mencegah zooming pada perangkat seluler */
+    touch-action: pan-x pan-y; 
+    -ms-touch-action: pan-x pan-y;
+    overflow: hidden; /* Pastikan html juga tidak scroll */
 }
 
 body {
@@ -86,12 +90,17 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    /* Memastikan tidak ada scroll horizontal atau bagian yang terpotong */
-    overflow: hidden; 
-    position: relative;
+    width: 100vw; /* Memastikan lebar penuh viewport */
+    overflow: hidden; /* Pastikan tidak ada scroll horizontal atau vertikal yang tidak diinginkan */
+    position: fixed; /* Penting untuk mencegah scrolling dan menjaga full screen */
+    top: 0;
+    left: 0;
     transition: background-color 0.5s ease, color 0.5s ease;
     -webkit-font-smoothing: antialiased; /* Font lebih halus, anti-blur */
     text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
+    /* Mencegah zooming pada perangkat seluler secara lebih kuat */
+    touch-action: none; 
+    -ms-touch-action: none;
 }
 
 /* Animasi Gradien Latar Belakang */
@@ -642,6 +651,8 @@ a {
     -webkit-text-fill-color: transparent;
     text-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
     animation: textGlow 2s infinite alternate;
+    -webkit-font-smoothing: antialiased; /* Anti-blur */
+    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
 }
 
 @keyframes textGlow {
@@ -657,6 +668,8 @@ a {
     max-width: 400px;
     margin-left: auto;
     margin-right: auto;
+    -webkit-font-smoothing: antialiased; /* Anti-blur */
+    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
 }
 
 .stats-grid {
@@ -686,11 +699,15 @@ a {
     color: var(--accent-color);
     margin-bottom: 5px;
     text-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+    -webkit-font-smoothing: antialiased; /* Anti-blur */
+    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
 }
 
 .stat-label {
     font-size: 0.9em;
     color: rgba(255, 255, 255, 0.6);
+    -webkit-font-smoothing: antialiased; /* Anti-blur */
+    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
 }
 
 .cta-button {
@@ -712,6 +729,8 @@ a {
     background-size: 200% 100%;
     background-position: 0% 0%;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    -webkit-font-smoothing: antialiased; /* Anti-blur */
+    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
 }
 
 .cta-button:hover {
@@ -768,8 +787,8 @@ a {
     position: fixed;
     top: 0;
     right: 0;
-    width: 100%; /* Pastikan menutupi 100% lebar */
-    height: 100%; /* Pastikan menutupi 100% tinggi */
+    width: 100vw; /* Pastikan menutupi 100% lebar viewport */
+    height: 100vh; /* Pastikan menutupi 100% tinggi viewport */
     background-color: var(--card-background);
     box-shadow: -10px 0 30px rgba(0, 0, 0, 0.4);
     transform: translateX(100%);
@@ -790,8 +809,8 @@ a {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     background-color: rgba(0, 0, 0, 0.6);
     z-index: 499;
     opacity: 0;
@@ -847,11 +866,15 @@ a {
     font-weight: 700;
     color: var(--primary-color);
     margin-bottom: 5px;
+    -webkit-font-smoothing: antialiased; /* Anti-blur */
+    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
 }
 
 .slide-subtitle {
     font-size: 1em;
     color: rgba(255, 255, 255, 0.7);
+    -webkit-font-smoothing: antialiased; /* Anti-blur */
+    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
 }
 
 .payment-methods, .social-links-grid {
@@ -927,6 +950,8 @@ a {
     font-size: 1.5em;
     font-weight: 600;
     color: var(--text-color);
+    -webkit-font-smoothing: antialiased; /* Anti-blur */
+    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
 }
 
 .copy-button {
@@ -966,6 +991,8 @@ a {
     color: rgba(255, 255, 255, 0.6);
     margin-bottom: 5px;
     display: block;
+    -webkit-font-smoothing: antialiased; /* Anti-blur */
+    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
 }
 
 .code-value {
@@ -975,6 +1002,8 @@ a {
     color: var(--accent-color);
     letter-spacing: 1px;
     text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+    -webkit-font-smoothing: antialiased; /* Anti-blur */
+    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
 }
 
 .card-footer {
@@ -1006,6 +1035,8 @@ a {
 
 .status-text {
     color: var(--text-color);
+    -webkit-font-smoothing: antialiased; /* Anti-blur */
+    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
 }
 
 /* --- QRIS Card --- */
@@ -1065,11 +1096,15 @@ a {
     font-weight: 600;
     color: var(--text-color);
     display: block;
+    -webkit-font-smoothing: antialiased; /* Anti-blur */
+    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
 }
 
 .qris-subtitle {
     font-size: 0.9em;
     color: rgba(255, 255, 255, 0.6);
+    -webkit-font-smoothing: antialiased; /* Anti-blur */
+    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
 }
 
 .download-button {
@@ -1150,6 +1185,8 @@ a {
     font-size: 1.3em;
     font-weight: 600;
     color: var(--text-color);
+    -webkit-font-smoothing: antialiased; /* Anti-blur */
+    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
 }
 
 .whatsapp-card .social-icon-large { background-color: #25D366; }
@@ -1322,8 +1359,9 @@ a {
 
     /* Ini yang penting untuk full screen pada slide-out di mobile */
     .payment-slide, .social-media-slide {
-        width: 100%; /* Pastikan 100% lebar */
-        max-width: 100%; /* Hilangkan batasan max-width */
+        width: 100vw; /* Pastikan 100% lebar viewport */
+        height: 100vh; /* Pastikan 100% tinggi viewport */
+        max-width: 100vw; /* Hilangkan batasan max-width */
         border-radius: 0;
     }
 
