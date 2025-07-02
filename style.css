@@ -71,17 +71,21 @@
     padding: 0;
 }
 
+/* Kunci HTML untuk tampilan full screen dan anti-zoom/geser */
 html {
     scroll-behavior: smooth;
+    overflow: hidden; /* Mencegah scroll pada elemen html */
+    width: 100vw;
+    height: 100vh;
     /* Mencegah zooming pada perangkat seluler */
-    touch-action: pan-x pan-y; 
-    -ms-touch-action: pan-x pan-y;
-    overflow: hidden; /* Pastikan html juga tidak scroll */
+    touch-action: none; 
+    -ms-touch-action: none;
+    overscroll-behavior: none; /* Mencegah pull-to-refresh dan scroll chain */
 }
 
+/* Kunci BODY untuk tampilan full screen dan anti-zoom/geser */
 body {
     font-family: 'Inter', sans-serif;
-    /* Latar belakang gradien bergerak */
     background: linear-gradient(135deg, var(--animated-bg-color1), var(--animated-bg-color2), var(--animated-bg-color3));
     background-size: 400% 400%;
     animation: gradientAnimation 15s ease infinite;
@@ -89,18 +93,19 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
     width: 100vw; /* Memastikan lebar penuh viewport */
-    overflow: hidden; /* Pastikan tidak ada scroll horizontal atau vertikal yang tidak diinginkan */
+    height: 100vh; /* Memastikan tinggi penuh viewport */
+    overflow: hidden; /* Mencegah scroll pada elemen body */
     position: fixed; /* Penting untuk mencegah scrolling dan menjaga full screen */
     top: 0;
     left: 0;
     transition: background-color 0.5s ease, color 0.5s ease;
     -webkit-font-smoothing: antialiased; /* Font lebih halus, anti-blur */
     text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
-    /* Mencegah zooming pada perangkat seluler secara lebih kuat */
+    /* Mencegah zooming dan geser pada perangkat seluler secara lebih kuat */
     touch-action: none; 
     -ms-touch-action: none;
+    overscroll-behavior: none; /* Mencegah pull-to-refresh dan scroll chain */
 }
 
 /* Animasi Gradien Latar Belakang */
@@ -131,8 +136,8 @@ a {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw; /* Pastikan full screen */
+    height: 100vh; /* Pastikan full screen */
     background-color: var(--splash-bg);
     display: flex;
     flex-direction: column;
@@ -142,6 +147,7 @@ a {
     transition: opacity 0.8s ease-out, visibility 0.8s ease-out;
     opacity: 1;
     visibility: visible;
+    will-change: opacity, transform; /* Memberi tahu browser untuk mengoptimalkan animasi */
 }
 
 .splash-screen.hidden {
@@ -154,6 +160,7 @@ a {
     width: 120px;
     height: 120px;
     margin-bottom: 30px;
+    transform: translateZ(0); /* Anti-blur for animated elements */
 }
 
 .splash-screen-logo {
@@ -163,6 +170,7 @@ a {
     object-fit: cover;
     box-shadow: 0 0 30px rgba(0, 240, 255, 0.6);
     animation: pulseGlow 2s infinite alternate;
+    transform: translateZ(0); /* Anti-blur for animated elements */
 }
 
 .logo-circle-glow {
@@ -177,16 +185,17 @@ a {
     filter: blur(15px);
     z-index: -1;
     animation: rotateGlow 10s linear infinite;
+    transform: translateZ(0); /* Anti-blur for animated elements */
 }
 
 @keyframes pulseGlow {
-    0% { transform: scale(1); box-shadow: 0 0 20px var(--glow-color); }
-    100% { transform: scale(1.05); box-shadow: 0 0 40px var(--glow-color); }
+    0% { transform: scale(1) translateZ(0); box-shadow: 0 0 20px var(--glow-color); }
+    100% { transform: scale(1.05) translateZ(0); box-shadow: 0 0 40px var(--glow-color); }
 }
 
 @keyframes rotateGlow {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% { transform: rotate(0deg) translateZ(0); }
+    100% { transform: rotate(360deg) translateZ(0); }
 }
 
 .loading-text {
@@ -194,6 +203,9 @@ a {
     color: var(--text-color);
     margin-bottom: 20px;
     animation: fadeInOut 2s infinite;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    transform: translateZ(0); /* Anti-blur for animated elements */
 }
 
 @keyframes fadeInOut {
@@ -215,39 +227,43 @@ a {
     background: linear-gradient(90deg, var(--loading-bar-color), var(--accent-color));
     border-radius: 4px;
     animation: loadingProgress 3s forwards cubic-bezier(0.25, 0.1, 0.25, 1);
+    transform: translateZ(0); /* Anti-blur for animated elements */
 }
 
 @keyframes loadingProgress {
-    0% { width: 0%; }
-    100% { width: 100%; }
+    0% { width: 0%; transform: translateZ(0); }
+    100% { width: 100%; transform: translateZ(0); }
 }
 
 /* --- Pemberitahuan Motivasi --- */
 .motivation-notification {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.8);
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     background-color: var(--notification-bg);
     padding: 30px;
-    border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
     text-align: center;
-    max-width: 400px;
-    width: 90%;
-    z-index: 1100; /* Lebih tinggi dari splash screen saat aktif */
+    z-index: 1100;
     opacity: 0;
     visibility: hidden;
-    transition: all 0.4s ease-in-out; /* Lebih cepat */
+    transition: all 0.4s ease-in-out;
     border: 2px solid var(--notification-border);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+    will-change: opacity, transform;
+    transform: scale(0.8) translateZ(0); /* Anti-blur for animated elements */
 }
 
 .motivation-notification.show {
     opacity: 1;
     visibility: visible;
-    transform: translate(-50%, -50%) scale(1);
+    transform: scale(1) translateZ(0); /* Anti-blur for animated elements */
 }
 
 .notification-content {
@@ -255,6 +271,8 @@ a {
     flex-direction: column;
     align-items: center;
     gap: 20px;
+    max-width: 400px; /* Batasi lebar konten agar rapi */
+    width: 90%;
 }
 
 .cat-animation {
@@ -264,12 +282,14 @@ a {
     object-fit: cover;
     animation: floatBob 3s ease-in-out infinite alternate;
     box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+    transform: translateZ(0); /* Anti-blur for animated elements */
+    will-change: transform;
 }
 
 @keyframes floatBob {
-    0% { transform: translateY(0px) scale(1); }
-    50% { transform: translateY(-10px) scale(1.05); }
-    100% { transform: translateY(0px) scale(1); }
+    0% { transform: translateY(0px) scale(1) translateZ(0); }
+    50% { transform: translateY(-10px) scale(1.05) translateZ(0); }
+    100% { transform: translateY(0px) scale(1) translateZ(0); }
 }
 
 .motivation-text {
@@ -280,6 +300,7 @@ a {
     line-height: 1.5;
     -webkit-font-smoothing: antialiased; /* Anti-blur */
     text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
+    transform: translateZ(0); /* Anti-blur for animated elements */
 }
 
 
@@ -296,11 +317,13 @@ a {
     z-index: 100;
     border: 1px solid var(--border-color);
     animation: fadeInScale 0.8s ease-out;
+    transform: translateZ(0); /* Anti-blur */
+    will-change: opacity, transform;
 }
 
 @keyframes fadeInScale {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
+    from { opacity: 0; transform: scale(0.9) translateZ(0); }
+    to { opacity: 1; transform: scale(1) translateZ(0); }
 }
 
 .login-register-container h2 {
@@ -309,6 +332,8 @@ a {
     font-size: 2em;
     font-weight: 700;
     text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 }
 
 .login-register-container input {
@@ -323,6 +348,7 @@ a {
     outline: none;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
     -webkit-font-smoothing: antialiased; /* Anti-blur untuk input */
+    transform: translateZ(0); /* Anti-blur */
 }
 
 .login-register-container input::placeholder {
@@ -348,16 +374,18 @@ a {
     background-position: 0% 0%;
     position: relative;
     overflow: hidden;
+    transform: translateZ(0); /* Anti-blur */
+    will-change: transform, box-shadow;
 }
 
 .login-register-container button:hover {
-    transform: translateY(-3px);
+    transform: translateY(-3px) translateZ(0);
     box-shadow: 0 10px 20px rgba(0, 240, 255, 0.3);
     background-position: 100% 0%;
 }
 
 .login-register-container button:active {
-    transform: translateY(0);
+    transform: translateY(0) translateZ(0);
     box-shadow: none;
 }
 
@@ -369,8 +397,9 @@ a {
     width: 100%;
     height: 100%;
     background: rgba(255, 255, 255, 0.2);
-    transform: skewX(-30deg);
+    transform: skewX(-30deg) translateZ(0);
     transition: left 0.5s ease;
+    will-change: transform;
 }
 
 .login-register-container button:hover::before {
@@ -384,6 +413,8 @@ a {
     cursor: pointer;
     opacity: 0.8;
     transition: opacity 0.3s ease;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 }
 
 .register-link:hover {
@@ -409,11 +440,13 @@ a {
     border-radius: 50%;
     opacity: 0;
     animation: particleAnimation linear infinite;
+    transform: translateZ(0); /* Anti-blur for animated elements */
+    will-change: transform, opacity;
 }
 
 @keyframes particleAnimation {
     0% {
-        transform: translateY(0) scale(1);
+        transform: translateY(0) scale(1) translateZ(0);
         opacity: 0;
     }
     10% {
@@ -423,7 +456,7 @@ a {
         opacity: 0.8;
     }
     100% {
-        transform: translateY(-100vh) scale(0);
+        transform: translateY(-100vh) scale(0) translateZ(0);
         opacity: 0;
     }
 }
@@ -444,6 +477,8 @@ a {
     z-index: 200;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     transition: background-color 0.3s ease;
+    transform: translateZ(0); /* Anti-blur */
+    will-change: transform, background-color;
 }
 
 .toggle-track {
@@ -460,10 +495,12 @@ a {
     position: absolute;
     left: 3px;
     transition: transform 0.3s ease, background-color 0.3s ease;
+    transform: translateZ(0); /* Anti-blur */
+    will-change: transform;
 }
 
 [data-theme="light"] .toggle-thumb {
-    transform: translateX(30px);
+    transform: translateX(30px) translateZ(0);
 }
 
 .toggle-icons {
@@ -484,22 +521,6 @@ a {
     transition: opacity 0.3s ease;
 }
 
-[data-theme="light"] .toggle-icons .sun-icon {
-    opacity: 1;
-}
-
-[data-theme="light"] .toggle-icons .moon-icon {
-    opacity: 0;
-}
-
-[data-theme="dark"] .toggle-icons .sun-icon {
-    opacity: 0;
-}
-
-[data-theme="dark"] .toggle-icons .moon-icon {
-    opacity: 1;
-}
-
 /* --- Main Container --- */
 .container {
     display: flex;
@@ -512,13 +533,14 @@ a {
     z-index: 10;
     padding: 20px;
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(20px) translateZ(0); /* Anti-blur */
     transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    will-change: opacity, transform;
 }
 
 .container.active {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) translateZ(0);
 }
 
 /* --- Intro Screen / Profile Section --- */
@@ -536,11 +558,13 @@ a {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     animation: cardEntrance 1s ease-out forwards;
+    transform: translateZ(0); /* Anti-blur */
+    will-change: transform, opacity;
 }
 
 @keyframes cardEntrance {
-    from { opacity: 0; transform: translateY(50px) scale(0.9); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
+    from { opacity: 0; transform: translateY(50px) scale(0.9) translateZ(0); }
+    to { opacity: 1; transform: translateY(0) scale(1) translateZ(0); }
 }
 
 .card-glow {
@@ -554,6 +578,8 @@ a {
     filter: blur(30px);
     animation: rotateGlow 20s linear infinite;
     z-index: 0;
+    transform: translateZ(0); /* Anti-blur */
+    will-change: transform;
 }
 
 .profile-section {
@@ -573,6 +599,8 @@ a {
     align-items: center;
     box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
     animation: profilePulse 2s infinite alternate;
+    transform: translateZ(0); /* Anti-blur */
+    will-change: transform, box-shadow;
 }
 
 .profile-ring {
@@ -586,16 +614,18 @@ a {
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     animation: spin 8s linear infinite;
+    transform: translateZ(0); /* Anti-blur */
+    will-change: transform;
 }
 
 @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from { transform: rotate(0deg) translateZ(0); }
+    to { transform: rotate(360deg) translateZ(0); }
 }
 
 @keyframes profilePulse {
-    0% { box-shadow: 0 0 20px rgba(0, 240, 255, 0.5); }
-    100% { box-shadow: 0 0 35px rgba(0, 240, 255, 0.8); }
+    0% { box-shadow: 0 0 20px rgba(0, 240, 255, 0.5); transform: scale(1) translateZ(0); }
+    100% { box-shadow: 0 0 35px rgba(0, 240, 255, 0.8); transform: scale(1.05) translateZ(0); }
 }
 
 .profile-avatar {
@@ -618,7 +648,7 @@ a {
 }
 
 .profile-image:hover {
-    transform: scale(1.05);
+    transform: scale(1.05) translateZ(0);
 }
 
 .status-badge {
@@ -633,12 +663,14 @@ a {
     font-size: 0.9em;
     box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
     animation: bounceIn 0.8s ease-out;
+    transform: translateZ(0); /* Anti-blur */
+    will-change: transform, opacity;
 }
 
 @keyframes bounceIn {
-    0% { transform: scale(0.5); opacity: 0; }
-    50% { transform: scale(1.2); opacity: 1; }
-    100% { transform: scale(1); }
+    0% { transform: scale(0.5) translateZ(0); opacity: 0; }
+    50% { transform: scale(1.2) translateZ(0); opacity: 1; }
+    100% { transform: scale(1) translateZ(0); }
 }
 
 .name {
@@ -651,8 +683,9 @@ a {
     -webkit-text-fill-color: transparent;
     text-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
     animation: textGlow 2s infinite alternate;
-    -webkit-font-smoothing: antialiased; /* Anti-blur */
-    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    transform: translateZ(0); /* Anti-blur */
 }
 
 @keyframes textGlow {
@@ -668,8 +701,8 @@ a {
     max-width: 400px;
     margin-left: auto;
     margin-right: auto;
-    -webkit-font-smoothing: antialiased; /* Anti-blur */
-    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 }
 
 .stats-grid {
@@ -686,10 +719,12 @@ a {
     border: 1px solid var(--border-color);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     transition: transform 0.3s ease, background-color 0.3s ease;
+    transform: translateZ(0); /* Anti-blur */
+    will-change: transform, background-color;
 }
 
 .stat-item:hover {
-    transform: translateY(-5px);
+    transform: translateY(-5px) translateZ(0);
     background-color: rgba(255, 255, 255, 0.1);
 }
 
@@ -699,15 +734,16 @@ a {
     color: var(--accent-color);
     margin-bottom: 5px;
     text-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
-    -webkit-font-smoothing: antialiased; /* Anti-blur */
-    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    transform: translateZ(0); /* Anti-blur */
 }
 
 .stat-label {
     font-size: 0.9em;
     color: rgba(255, 255, 255, 0.6);
-    -webkit-font-smoothing: antialiased; /* Anti-blur */
-    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 }
 
 .cta-button {
@@ -729,18 +765,20 @@ a {
     background-size: 200% 100%;
     background-position: 0% 0%;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-    -webkit-font-smoothing: antialiased; /* Anti-blur */
-    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    transform: translateZ(0); /* Anti-blur */
+    will-change: transform, box-shadow, background-position;
 }
 
 .cta-button:hover {
-    transform: translateY(-5px);
+    transform: translateY(-5px) translateZ(0);
     box-shadow: 0 12px 30px rgba(0, 240, 255, 0.4);
     background-position: 100% 0%;
 }
 
 .cta-button:active {
-    transform: translateY(0);
+    transform: translateY(0) translateZ(0);
     box-shadow: none;
 }
 
@@ -753,10 +791,12 @@ a {
     background: linear-gradient(45deg, var(--button-bg-start), var(--button-bg-end));
     z-index: -1;
     transition: transform 0.5s ease;
+    transform: translateZ(0); /* Anti-blur */
+    will-change: transform;
 }
 
 .cta-button:hover .button-bg {
-    transform: scale(1.1);
+    transform: scale(1.1) translateZ(0);
 }
 
 .cta-button .button-content {
@@ -791,18 +831,19 @@ a {
     height: 100vh; /* Pastikan menutupi 100% tinggi viewport */
     background-color: var(--card-background);
     box-shadow: -10px 0 30px rgba(0, 0, 0, 0.4);
-    transform: translateX(100%);
+    transform: translateX(100vw) translateZ(0); /* Anti-blur + geser full width */
     transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     z-index: 500;
     display: flex;
     flex-direction: column;
     border-left: 1px solid var(--border-color);
     padding: 20px;
-    overflow-y: auto; /* Memungkinkan scroll jika konten terlalu panjang */
+    overflow-y: auto; /* Memungkinkan scroll jika konten terlalu panjang di dalam slide saja */
+    will-change: transform;
 }
 
 .payment-slide.active, .social-media-slide.active {
-    transform: translateX(0);
+    transform: translateX(0) translateZ(0);
 }
 
 .slide-backdrop {
@@ -844,10 +885,12 @@ a {
     cursor: pointer;
     margin-right: 20px;
     transition: transform 0.3s ease;
+    transform: translateZ(0); /* Anti-blur */
+    will-change: transform;
 }
 
 .close-button:hover {
-    transform: rotate(90deg);
+    transform: rotate(90deg) translateZ(0);
     color: var(--accent-color);
 }
 
@@ -866,15 +909,15 @@ a {
     font-weight: 700;
     color: var(--primary-color);
     margin-bottom: 5px;
-    -webkit-font-smoothing: antialiased; /* Anti-blur */
-    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 }
 
 .slide-subtitle {
     font-size: 1em;
     color: rgba(255, 255, 255, 0.7);
-    -webkit-font-smoothing: antialiased; /* Anti-blur */
-    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 }
 
 .payment-methods, .social-links-grid {
@@ -892,10 +935,12 @@ a {
     position: relative;
     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transform: translateZ(0); /* Anti-blur */
+    will-change: transform, box-shadow;
 }
 
 .payment-card:hover, .social-link-card:hover {
-    transform: translateY(-8px);
+    transform: translateY(-8px) translateZ(0);
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
 }
 
@@ -907,13 +952,14 @@ a {
     height: 200%;
     background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
     opacity: 0;
-    transform: rotate(45deg);
+    transform: rotate(45deg) translateZ(0);
     transition: opacity 0.5s ease, transform 0.5s ease;
+    will-change: transform, opacity;
 }
 
 .payment-card:hover .card-shine, .social-link-card:hover .card-shine {
     opacity: 1;
-    transform: rotate(0deg);
+    transform: rotate(0deg) translateZ(0);
 }
 
 .payment-header {
@@ -942,16 +988,12 @@ a {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
-.dana-icon { background-color: var(--dana-color); }
-.gopay-icon { background-color: var(--gopay-color); }
-.ovo-icon { background-color: var(--ovo-color); }
-
 .brand-name {
     font-size: 1.5em;
     font-weight: 600;
     color: var(--text-color);
-    -webkit-font-smoothing: antialiased; /* Anti-blur */
-    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 }
 
 .copy-button {
@@ -959,15 +1001,17 @@ a {
     border-radius: 8px;
     padding: 10px;
     transition: background-color 0.3s ease, transform 0.2s ease;
+    transform: translateZ(0); /* Anti-blur */
+    will-change: transform, background-color;
 }
 
 .copy-button:hover {
     background-color: var(--accent-color);
-    transform: scale(1.05);
+    transform: scale(1.05) translateZ(0);
 }
 
 .copy-button:active {
-    transform: scale(0.95);
+    transform: scale(0.95) translateZ(0);
 }
 
 .copy-button svg {
@@ -991,8 +1035,8 @@ a {
     color: rgba(255, 255, 255, 0.6);
     margin-bottom: 5px;
     display: block;
-    -webkit-font-smoothing: antialiased; /* Anti-blur */
-    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 }
 
 .code-value {
@@ -1002,8 +1046,9 @@ a {
     color: var(--accent-color);
     letter-spacing: 1px;
     text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
-    -webkit-font-smoothing: antialiased; /* Anti-blur */
-    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    transform: translateZ(0); /* Anti-blur */
 }
 
 .card-footer {
@@ -1022,6 +1067,8 @@ a {
     font-size: 0.9em;
     font-weight: 500;
     transition: background-color 0.3s ease;
+    transform: translateZ(0); /* Anti-blur */
+    will-change: background-color;
 }
 
 .status-indicator {
@@ -1035,8 +1082,8 @@ a {
 
 .status-text {
     color: var(--text-color);
-    -webkit-font-smoothing: antialiased; /* Anti-blur */
-    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 }
 
 /* --- QRIS Card --- */
@@ -1048,12 +1095,13 @@ a {
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
     position: relative;
     overflow: hidden;
-    text-align: center;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transform: translateZ(0); /* Anti-blur */
+    will-change: transform, box-shadow;
 }
 
 .qris-card:hover {
-    transform: translateY(-8px);
+    transform: translateY(-8px) translateZ(0);
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
 }
 
@@ -1096,15 +1144,15 @@ a {
     font-weight: 600;
     color: var(--text-color);
     display: block;
-    -webkit-font-smoothing: antialiased; /* Anti-blur */
-    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 }
 
 .qris-subtitle {
     font-size: 0.9em;
     color: rgba(255, 255, 255, 0.6);
-    -webkit-font-smoothing: antialiased; /* Anti-blur */
-    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 }
 
 .download-button {
@@ -1112,15 +1160,17 @@ a {
     border-radius: 8px;
     padding: 10px;
     transition: background-color 0.3s ease, transform 0.2s ease;
+    transform: translateZ(0); /* Anti-blur */
+    will-change: background-color, transform;
 }
 
 .download-button:hover {
     background-color: var(--primary-color);
-    transform: scale(1.05);
+    transform: scale(1.05) translateZ(0);
 }
 
 .download-button:active {
-    transform: scale(0.95);
+    transform: scale(0.95) translateZ(0);
 }
 
 .download-button svg {
@@ -1169,10 +1219,12 @@ a {
     background-color: rgba(255, 255, 255, 0.1);
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
     transition: transform 0.3s ease;
+    transform: translateZ(0); /* Anti-blur */
+    will-change: transform;
 }
 
 .social-link-card:hover .social-icon-large {
-    transform: scale(1.1);
+    transform: scale(1.1) translateZ(0);
 }
 
 .social-icon-large img {
@@ -1185,8 +1237,8 @@ a {
     font-size: 1.3em;
     font-weight: 600;
     color: var(--text-color);
-    -webkit-font-smoothing: antialiased; /* Anti-blur */
-    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 }
 
 .whatsapp-card .social-icon-large { background-color: #25D366; }
@@ -1209,13 +1261,14 @@ a {
     border: 1px solid var(--border-color);
     z-index: 150;
     opacity: 0;
-    transform: translateX(-100%);
+    transform: translateX(-100%) translateZ(0); /* Anti-blur */
     transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    will-change: transform, opacity;
 }
 
 .user-status-section.visible {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateX(0) translateZ(0);
 }
 
 .user-status-indicator {
@@ -1225,17 +1278,19 @@ a {
     background-color: #4CAF50; /* Status Online */
     box-shadow: 0 0 8px #4CAF50;
     animation: pulseStatus 1.5s infinite alternate;
+    transform: translateZ(0); /* Anti-blur */
+    will-change: transform;
 }
 
 @keyframes pulseStatus {
-    0% { transform: scale(1); opacity: 1; }
-    100% { transform: scale(1.2); opacity: 0.7; }
+    0% { transform: scale(1) translateZ(0); opacity: 1; }
+    100% { transform: scale(1.2) translateZ(0); opacity: 0.7; }
 }
 
 .status-info strong {
     color: var(--accent-color);
     font-weight: 700;
-    -webkit-font-smoothing: antialiased; /* Anti-blur */
+    -webkit-font-smoothing: antialiased;
 }
 
 /* --- Ikon Media Sosial Mengambang --- */
@@ -1248,13 +1303,14 @@ a {
     gap: 15px;
     z-index: 180;
     opacity: 0;
-    transform: translateX(100%);
+    transform: translateX(100%) translateZ(0); /* Anti-blur */
     transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    will-change: transform, opacity;
 }
 
 .social-media-container.visible {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateX(0) translateZ(0);
 }
 
 .social-media-icon {
@@ -1267,10 +1323,12 @@ a {
     align-items: center;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
     transition: transform 0.3s ease, background-color 0.3s ease;
+    transform: translateZ(0); /* Anti-blur */
+    will-change: transform, background-color;
 }
 
 .social-media-icon:hover {
-    transform: scale(1.1);
+    transform: scale(1.1) translateZ(0);
     background-color: var(--accent-color);
 }
 
@@ -1285,7 +1343,7 @@ a {
     position: fixed;
     bottom: 30px;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) translateZ(0); /* Anti-blur */
     background-color: var(--toast-bg);
     color: var(--toast-text);
     padding: 15px 25px;
@@ -1299,12 +1357,13 @@ a {
     transition: opacity 0.4s ease-out, transform 0.4s ease-out, visibility 0.4s ease-out;
     z-index: 1000;
     min-width: 250px;
+    will-change: transform, opacity;
 }
 
 .toast.show {
     opacity: 1;
     visibility: visible;
-    transform: translateX(-50%) translateY(-10px);
+    transform: translateX(-50%) translateY(-10px) translateZ(0);
 }
 
 .toast-icon {
@@ -1357,7 +1416,7 @@ a {
         padding: 15px;
     }
 
-    /* Ini yang penting untuk full screen pada slide-out di mobile */
+    /* Pastikan full screen pada slide-out di mobile */
     .payment-slide, .social-media-slide {
         width: 100vw; /* Pastikan 100% lebar viewport */
         height: 100vh; /* Pastikan 100% tinggi viewport */
@@ -1421,7 +1480,7 @@ a {
     }
 
     [data-theme="light"] .toggle-thumb {
-        transform: translateX(25px);
+        transform: translateX(25px) translateZ(0);
     }
 
     .fixed-top-right {
