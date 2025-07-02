@@ -21,6 +21,8 @@
     --toast-success: #4CAF50; /* Warna sukses */
     --toast-error: #F44336; /* Warna error */
     --toast-info: #2196F3; /* Warna info */
+    --notification-bg: rgba(44, 44, 74, 0.95); /* Latar belakang notifikasi */
+    --notification-border: rgba(0, 240, 255, 0.5); /* Border notifikasi */
 
     /* Warna spesifik kartu pembayaran */
     --dana-color: #108ee9;
@@ -53,6 +55,8 @@
     --toggle-thumb: #4CAF50;
     --toast-bg: #f0f0f0;
     --toast-text: #333;
+    --notification-bg: rgba(255, 255, 255, 0.95);
+    --notification-border: rgba(76, 175, 80, 0.5);
 
     /* Warna latar belakang animasi tema terang */
     --animated-bg-color1: #f0f2f5;
@@ -82,10 +86,11 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    overflow-x: hidden;
+    overflow-x: hidden; /* Pastikan tidak ada scroll horizontal */
     position: relative;
     transition: background-color 0.5s ease, color 0.5s ease;
-    -webkit-font-smoothing: antialiased; /* Font lebih halus */
+    -webkit-font-smoothing: antialiased; /* Font lebih halus, anti-blur */
+    text-rendering: optimizeLegibility; /* Mengoptimalkan render teks */
 }
 
 /* Animasi Gradien Latar Belakang */
@@ -207,6 +212,65 @@ a {
     100% { width: 100%; }
 }
 
+/* --- Pemberitahuan Motivasi --- */
+.motivation-notification {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    background-color: var(--notification-bg);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    z-index: 1100; /* Lebih tinggi dari splash screen saat aktif */
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.5s ease-in-out;
+    border: 2px solid var(--notification-border);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.motivation-notification.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.notification-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.cat-animation {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    animation: floatBob 3s ease-in-out infinite alternate;
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+}
+
+@keyframes floatBob {
+    0% { transform: translateY(0px) scale(1); }
+    50% { transform: translateY(-10px) scale(1.05); }
+    100% { transform: translateY(0px) scale(1); }
+}
+
+.motivation-text {
+    font-size: 1.3em;
+    font-weight: 600;
+    color: var(--text-color);
+    text-shadow: 0 0 5px rgba(0, 240, 255, 0.3);
+    line-height: 1.5;
+}
+
+
 /* --- Login/Register Container --- */
 .login-register-container {
     background: var(--card-background);
@@ -246,6 +310,7 @@ a {
     font-size: 1em;
     outline: none;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    -webkit-font-smoothing: antialiased; /* Anti-blur untuk input */
 }
 
 .login-register-container input::placeholder {
@@ -1131,6 +1196,7 @@ a {
 .status-info strong {
     color: var(--accent-color);
     font-weight: 700;
+    -webkit-font-smoothing: antialiased; /* Anti-blur */
 }
 
 /* --- Ikon Media Sosial Mengambang --- */
@@ -1381,6 +1447,19 @@ a {
     .social-name {
         font-size: 1em;
     }
+
+    .motivation-notification {
+        padding: 20px;
+    }
+
+    .cat-animation {
+        width: 80px;
+        height: 80px;
+    }
+
+    .motivation-text {
+        font-size: 1em;
+    }
 }
 
 /* --- Efek 'jalan-jalan warna' (Hue Rotate) --- */
@@ -1454,4 +1533,7 @@ a {
 }
 [data-theme="light"] .toast-message {
     color: rgba(0, 0, 0, 0.8);
+}
+[data-theme="light"] .motivation-notification {
+    border: 2px solid var(--notification-border);
 }

@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Mendapatkan elemen-elemen DOM yang dibutuhkan
     const splashScreen = document.getElementById('splashScreen');
     const loadingBar = document.getElementById('loadingBar');
+    const motivationNotification = document.getElementById('motivationNotification');
     const loginRegisterContainer = document.getElementById('loginRegisterContainer');
     const mainContainer = document.querySelector('main.container');
     const formTitle = document.getElementById('formTitle');
@@ -68,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
             hash = ((hash << 5) - hash) + char;
             hash |= 0; // Ubah menjadi integer 32bit
         }
+        // Pastikan ID selalu 8 digit
         return Math.abs(hash).toString().substring(0, 8).padEnd(8, '0');
     }
 
@@ -100,16 +102,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Logika Splash Screen ---
-    const splashDuration = 3000; // Durasi splash screen: 3 detik
+    const splashDuration = 2000; // Durasi splash screen: 2 detik (lebih cepat)
     loadingBar.style.animationDuration = `${splashDuration / 1000}s`;
 
     setTimeout(() => {
         splashScreen.classList.add('hidden');
         splashScreen.addEventListener('transitionend', () => {
             splashScreen.remove(); // Hapus dari DOM setelah animasi selesai
-            checkLoginStatus(); // Cek status login setelah splash screen hilang
+            showMotivationNotification(); // Tampilkan notifikasi motivasi
         }, { once: true });
     }, splashDuration);
+
+    // --- Logika Pemberitahuan Motivasi ---
+    function showMotivationNotification() {
+        motivationNotification.classList.add('show');
+        setTimeout(() => {
+            motivationNotification.classList.remove('show');
+            motivationNotification.addEventListener('transitionend', () => {
+                motivationNotification.remove(); // Hapus notifikasi setelah hilang
+                checkLoginStatus(); // Cek status login setelah notifikasi hilang
+            }, { once: true });
+        }, 3000); // Tampilkan selama 3 detik, lalu mulai transisi menghilang
+    }
 
     // --- Logika Autentikasi (Login/Daftar) ---
     /**
@@ -307,7 +321,4 @@ document.addEventListener('DOMContentLoaded', () => {
         particle.style.animationDelay = `${Math.random() * 5}s`; // Penundaan acak
         particlesContainer.appendChild(particle);
     }
-
-    // Panggil fungsi ini saat halaman dimuat
-    checkLoginStatus();
 });
