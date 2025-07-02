@@ -1,581 +1,313 @@
-// app.js
+document.addEventListener('DOMContentLoaded', () => {
+    // Mendapatkan elemen-elemen DOM yang dibutuhkan
+    const splashScreen = document.getElementById('splashScreen');
+    const loadingBar = document.getElementById('loadingBar');
+    const loginRegisterContainer = document.getElementById('loginRegisterContainer');
+    const mainContainer = document.querySelector('main.container');
+    const formTitle = document.getElementById('formTitle');
+    const usernameInput = document.getElementById('usernameInput');
+    const passwordInput = document.getElementById('passwordInput');
+    const authButton = document.getElementById('authButton');
+    const toggleAuthMode = document.getElementById('toggleAuthMode');
+    const themeToggle = document.querySelector('.theme-toggle');
+    const openPaymentSlideBtn = document.getElementById('openPaymentSlide');
+    const closePaymentSlideBtn = document.getElementById('closePaymentSlide');
+    const paymentSlide = document.getElementById('paymentSlide');
+    const openSosmedSlideBtn = document.getElementById('openSosmedSlide');
+    const closeSosmedSlideBtn = document.getElementById('closeSosmedSlide');
+    const socialMediaSlide = document.getElementById('socialMediaSlide');
+    const copyButtons = document.querySelectorAll('.copy-button');
+    const downloadQrisBtn = document.getElementById('downloadQris');
+    const qrImage = document.querySelector('.qr-image');
+    const logoutButton = document.getElementById('logoutButton');
+    const userStatusSection = document.getElementById('userStatusSection');
+    const myUserIdElement = document.getElementById('myUserId');
+    const otherUsersStatusElement = document.getElementById('otherUsersStatus');
+    const socialMediaFixedContainer = document.querySelector('.social-media-container.fixed-top-right');
+    const gatewayAudio = document.getElementById('gatewayAudio');
+    const toastElement = document.getElementById('toast');
+    const toastTitle = toastElement.querySelector('.toast-title');
+    const toastMessage = toastElement.querySelector('.toast-message');
 
-// --- DOM Element References ---
-const splashScreen = document.getElementById('splashScreen');
-const loadingBar = document.getElementById('loadingBar');
-const loginRegisterContainer = document.getElementById('loginRegisterContainer');
-const mainContent = document.querySelector('main.container');
-const usernameInput = document.getElementById('usernameInput');
-const passwordInput = document.getElementById('passwordInput');
-const authButton = document.getElementById('authButton');
-const toggleAuthMode = document.getElementById('toggleAuthMode');
-const formTitle = document.getElementById('formTitle');
-const myUserIdElement = document.getElementById('myUserId');
-const myStatusIndicator = document.getElementById('myStatusIndicator');
-const otherUsersStatus = document.getElementById('otherUsersStatus');
-const userStatusSection = document.getElementById('userStatusSection'); 
+    let isRegisterMode = false;
+    // Memuat data pengguna dari Local Storage
+    const users = JSON.parse(localStorage.getItem('users')) || {};
+    let loggedInUser = localStorage.getItem('loggedInUser');
 
-// Stats elements
-const uptimeValue = document.getElementById('uptimeValue');
-const supportValue = document.getElementById('supportValue');
-const encryptionValue = document.getElementById('encryptionValue');
+    // --- Fungsi Utilitas ---
 
-// Payment Slide Elements
-const openPaymentSlideButton = document.getElementById('openPaymentSlide');
-const closePaymentSlideButton = document.getElementById('closePaymentSlide');
-const paymentSlide = document.getElementById('paymentSlide');
-
-// Social Media Slide Elements
-const openSosmedSlideButton = document.getElementById('openSosmedSlide');
-const closeSosmedSlideButton = document.getElementById('closeSosmedSlide');
-const socialMediaSlide = document.getElementById('socialMediaSlide');
-
-// Bug Panel Elements
-const openBugSlideButton = document.getElementById('openBugSlide');
-const closeBugSlideButton = document.getElementById('closeBugSlide');
-const bugSlide = document.getElementById('bugSlide');
-const botStatusElement = document.getElementById('botStatus');
-const bugNoInput = document.getElementById('bugNoInput');
-const sendPairingCodeButton = document.getElementById('sendPairingCode');
-const sendNoTargetButton = document.getElementById('sendNoTarget');
-const toggleDelayButton = document.getElementById('toggleDelay');
-const delayStatusElement = document.getElementById('delayStatus');
-const triggerFCButton = document.getElementById('triggerFC');
-const targetOsRadios = document.querySelectorAll('input[name="targetOs"]');
-
-// Logout Button
-const logoutButton = document.getElementById('logoutButton');
-
-// Other global elements
-const themeToggle = document.querySelector('.theme-toggle');
-const body = document.body;
-const particlesContainer = document.getElementById('particles');
-const gatewayAudio = document.getElementById('gatewayAudio');
-
-// --- Global Variables ---
-let isLoginMode = true; // State for login/register form
-// Load registered users from localStorage, or initialize with 'annas'
-const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || {}; 
-
-// Ensure 'annas' user exists with specific ID, or update if password changed
-if (!registeredUsers['annas'] || registeredUsers['annas'].password !== '1' || registeredUsers['annas'].id !== 12345678) {
-    registeredUsers['annas'] = { password: '1', id: 12345678 };
-    localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-}
-
-let currentUserId = null; // To store logged-in user's ID
-let currentUsername = null; // To store current username for auto-login
-let otherUsersStatusInterval = null; // Keep track of the interval for clearing
-
-// Bug Panel State (Simulated)
-let isBotOnline = false;
-let isDelayActive = false;
-
-
-// --- Helper Functions ---
-
-/**
- * Generates a unique 8-digit user ID.
- * Ensures the ID is unique among currently registered users.
- * @returns {number}
- */
-function generateUniqueId() {
-    let id;
-    const allRegisteredIds = Object.values(registeredUsers).map(user => user.id);
-    do {
-        id = Math.floor(10000000 + Math.random() * 90000000);
-    } while (allRegisteredIds.includes(id) || id === currentUserId); // Ensure unique and not same as current user
-    return id;
-}
-
-/**
- * Sets the current user's online/offline/idle status.
- * @param {string} status - 'online', 'offline', or 'idle'
- */
-function setMyStatus(status) {
-    if (myStatusIndicator) {
-        myStatusIndicator.classList.remove('online', 'offline', 'idle');
-        myStatusIndicator.classList.add(status);
+    /**
+     * Menampilkan notifikasi toast di layar.
+     * @param {string} message - Pesan yang akan ditampilkan.
+     * @param {string} type - Tipe notifikasi ('success', 'error', 'info').
+     * @param {string} title - Judul notifikasi.
+     */
+    function showToast(message, type = 'info', title = 'Notifikasi') {
+        toastTitle.textContent = title;
+        toastMessage.textContent = message;
+        toastElement.className = `toast show ${type}`;
+        setTimeout(() => {
+            toastElement.className = 'toast';
+        }, 3000); // Sembunyikan setelah 3 detik
     }
-}
 
-/**
- * Simulates and updates other users' online/offline status and ID.
- */
-function updateOtherUsersStatus() {
-    const statuses = ['Online', 'Offline', 'Online', 'Online', 'Offline', 'Offline', 'Online'];
-    const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
-    
-    let otherId;
-    do {
-        otherId = Math.floor(10000000 + Math.random() * 90000000); // Generate temporary unique ID for other users
-    } while (otherId === currentUserId); // Make sure it's not the same as logged-in user's ID
-
-    if (otherUsersStatus) {
-        otherUsersStatus.textContent = `${randomStatus} (ID: ${otherId})`;
+    /**
+     * Menghasilkan ID pengguna berdasarkan username.
+     * Khusus 'annas' akan mendapatkan ID '12345678'.
+     * @param {string} username - Username pengguna.
+     * @returns {string} ID pengguna 8 digit.
+     */
+    function generateUserId(username) {
+        if (username.toLowerCase() === 'annas') {
+            return '12345678';
+        }
+        // Hash sederhana untuk ID pengguna lain, pastikan 8 digit
+        let hash = 0;
+        for (let i = 0; i < username.length; i++) {
+            const char = username.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash |= 0; // Ubah menjadi integer 32bit
+        }
+        return Math.abs(hash).toString().substring(0, 8).padEnd(8, '0');
     }
-}
 
-/**
- * Updates dynamic stats (Uptime, Support, Encryption) based on current date.
- */
-function updateDynamicStats() {
-    const today = new Date();
-    const dayOfMonth = today.getDate();
-    const month = today.getMonth() + 1; // getMonth() returns 0-11
+    /**
+     * Memperbarui nilai statistik Uptime, Support, dan Encryption.
+     */
+    function updateStats() {
+        const uptimeValue = document.getElementById('uptimeValue');
+        const supportValue = document.getElementById('supportValue');
+        const encryptionValue = document.getElementById('encryptionValue');
 
-    if (uptimeValue) {
-        // Example: Uptime always high, slightly changes
-        uptimeValue.textContent = `99.${(dayOfMonth % 10) + 9}%`; 
+        // Simulasi nilai dinamis
+        const currentHour = new Date().getHours();
+        const currentDay = new Date().getDay(); // 0 untuk Minggu, 1 untuk Senin, dst.
+
+        // Uptime: Selalu 99.9%
+        uptimeValue.textContent = '99.9%';
+
+        // Support: Berubah sesuai hari (misal, lebih tinggi di hari kerja)
+        if (currentDay >= 1 && currentDay <= 5) { // Hari kerja (Senin-Jumat)
+            supportValue.textContent = '24/7';
+        } else { // Akhir pekan (Sabtu-Minggu)
+            supportValue.textContent = '12/7';
+        }
+
+        // Encryption: Berubah setiap hari (simulasi)
+        const encryptionLevels = ['AES-256', 'RSA-4096', 'ECC-384', 'ChaCha20'];
+        const dayOfMonth = new Date().getDate();
+        encryptionValue.textContent = encryptionLevels[dayOfMonth % encryptionLevels.length];
     }
-    if (supportValue) {
-        // Example: Support hours based on day
-        supportValue.textContent = `${(dayOfMonth % 3) + 2}4/7`;
-    }
-    if (encryptionValue) {
-        // Example: Encryption strength changes slightly
-        const strengths = ['256-bit', '512-bit', '384-bit'];
-        encryptionValue.textContent = strengths[dayOfMonth % strengths.length];
-    }
-}
 
-/**
- * Displays a toast notification.
- * @param {string} title - The title of the toast.
- * @param {string} message - The message content.
- * @param {string} iconClass - Class for the toast icon ('success', 'warning', 'error', 'info').
- */
-function showToast(title, message, iconClass = 'info') {
-    const toast = document.getElementById('toast');
-    if (!toast) return;
+    // --- Logika Splash Screen ---
+    const splashDuration = 3000; // Durasi splash screen: 3 detik
+    loadingBar.style.animationDuration = `${splashDuration / 1000}s`;
 
-    const toastTitle = toast.querySelector('.toast-title');
-    const toastMessage = toast.querySelector('.toast-message');
-    const toastIcon = toast.querySelector('.toast-icon');
+    setTimeout(() => {
+        splashScreen.classList.add('hidden');
+        splashScreen.addEventListener('transitionend', () => {
+            splashScreen.remove(); // Hapus dari DOM setelah animasi selesai
+            checkLoginStatus(); // Cek status login setelah splash screen hilang
+        }, { once: true });
+    }, splashDuration);
 
-    if (toastTitle) toastTitle.textContent = title;
-    if (toastMessage) toastMessage.textContent = message;
-    
-    if (toastIcon) {
-        toastIcon.className = 'toast-icon'; // Reset class
-        if (iconClass) {
-            toastIcon.classList.add(iconClass); // Add the new icon class
+    // --- Logika Autentikasi (Login/Daftar) ---
+    /**
+     * Memeriksa status login pengguna dan menampilkan UI yang sesuai.
+     */
+    function checkLoginStatus() {
+        if (loggedInUser) {
+            loginRegisterContainer.style.display = 'none';
+            mainContainer.style.display = 'flex';
+            mainContainer.classList.add('active'); // Aktifkan animasi masuk untuk main container
+            userStatusSection.classList.add('visible'); // Tampilkan status pengguna
+            socialMediaFixedContainer.classList.add('visible'); // Tampilkan ikon sosmed mengambang
+            myUserIdElement.textContent = users[loggedInUser].id; // Tampilkan ID pengguna
+            updateStats(); // Perbarui statistik dinamis
+            // Mainkan audio saat login berhasil atau langsung masuk
+            if (gatewayAudio) {
+                gatewayAudio.play().catch(e => console.log("Audio play failed:", e));
+            }
+        } else {
+            loginRegisterContainer.style.display = 'block';
+            mainContainer.style.display = 'none';
+            userStatusSection.classList.remove('visible');
+            socialMediaFixedContainer.classList.remove('visible');
         }
     }
-    
-    toast.classList.add('show');
-    setTimeout(() => {
-        toast.classList.remove('show');
-    }, 3000); // Hide after 3 seconds
-}
 
-/**
- * Creates dynamic particles in the background.
- */
-function createParticles() {
-    if (particlesContainer) {
-        particlesContainer.innerHTML = ''; 
-    } else {
-        console.warn("Particles container not found! Cannot create particles.");
-        return;
+    // Mengubah mode antara Login dan Daftar
+    toggleAuthMode.addEventListener('click', () => {
+        isRegisterMode = !isRegisterMode;
+        formTitle.textContent = isRegisterMode ? 'Daftar Akun Baru' : 'Login';
+        authButton.textContent = isRegisterMode ? 'Daftar' : 'Login';
+        toggleAuthMode.textContent = isRegisterMode ? 'Sudah punya akun? Login' : 'Belum punya akun? Buat akun baru';
+    });
+
+    // Menangani aksi Login atau Daftar
+    authButton.addEventListener('click', () => {
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value.trim();
+
+        if (!username || !password) {
+            showToast('Username dan password tidak boleh kosong!', 'error', 'Error');
+            return;
+        }
+
+        if (isRegisterMode) {
+            // Logika Pendaftaran
+            if (users[username]) {
+                showToast('Username sudah terdaftar!', 'error', 'Gagal');
+            } else {
+                const userId = generateUserId(username);
+                users[username] = { password: password, id: userId };
+                localStorage.setItem('users', JSON.stringify(users));
+                showToast('Pendaftaran berhasil! Silakan login.', 'success', 'Sukses');
+                // Kembali ke mode login setelah daftar
+                isRegisterMode = false;
+                formTitle.textContent = 'Login';
+                authButton.textContent = 'Login';
+                toggleAuthMode.textContent = 'Belum punya akun? Buat akun baru';
+                usernameInput.value = '';
+                passwordInput.value = '';
+            }
+        } else {
+            // Logika Login
+            if (users[username] && users[username].password === password) {
+                loggedInUser = username;
+                localStorage.setItem('loggedInUser', loggedInUser);
+                showToast('Login berhasil!', 'success', 'Selamat Datang');
+                loginRegisterContainer.style.display = 'none';
+                mainContainer.style.display = 'flex';
+                mainContainer.classList.add('active');
+                userStatusSection.classList.add('visible');
+                socialMediaFixedContainer.classList.add('visible');
+                myUserIdElement.textContent = users[loggedInUser].id;
+                updateStats();
+                if (gatewayAudio) {
+                    gatewayAudio.play().catch(e => console.log("Audio play failed:", e));
+                }
+            } else {
+                showToast('Username atau password salah!', 'error', 'Gagal Login');
+            }
+        }
+    });
+
+    // Menangani aksi Logout
+    logoutButton.addEventListener('click', () => {
+        loggedInUser = null;
+        localStorage.removeItem('loggedInUser');
+        showToast('Anda telah logout.', 'info', 'Info');
+        loginRegisterContainer.style.display = 'block';
+        mainContainer.style.display = 'none';
+        mainContainer.classList.remove('active');
+        userStatusSection.classList.remove('visible');
+        socialMediaFixedContainer.classList.remove('visible');
+        usernameInput.value = '';
+        passwordInput.value = '';
+        // Tutup slide yang mungkin terbuka saat logout
+        paymentSlide.classList.remove('active');
+        socialMediaSlide.classList.remove('active');
+    });
+
+    // --- Logika Ganti Tema ---
+    const currentTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    if (currentTheme === 'light') {
+        themeToggle.classList.add('light-mode');
     }
 
-    const numParticles = 50; 
+    themeToggle.addEventListener('click', () => {
+        let theme = document.documentElement.getAttribute('data-theme');
+        if (theme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme', 'light');
+            themeToggle.classList.add('light-mode');
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+            themeToggle.classList.remove('light-mode');
+        }
+    });
+
+    // --- Logika Panel Slide-out (Pembayaran & Media Sosial) ---
+    /**
+     * Membuka panel slide-out.
+     * @param {HTMLElement} slideElement - Elemen slide yang akan dibuka.
+     */
+    function openSlide(slideElement) {
+        slideElement.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Mencegah scrolling body saat slide terbuka
+    }
+
+    /**
+     * Menutup panel slide-out.
+     * @param {HTMLElement} slideElement - Elemen slide yang akan ditutup.
+     */
+    function closeSlide(slideElement) {
+        slideElement.classList.remove('active');
+        document.body.style.overflow = ''; // Mengembalikan scrolling body
+    }
+
+    openPaymentSlideBtn.addEventListener('click', () => openSlide(paymentSlide));
+    closePaymentSlideBtn.addEventListener('click', () => closeSlide(paymentSlide));
+
+    openSosmedSlideBtn.addEventListener('click', () => openSlide(socialMediaSlide));
+    closeSosmedSlideBtn.addEventListener('click', () => closeSlide(socialMediaSlide));
+
+    // Menutup slide saat mengklik di luar area slide (backdrop)
+    document.querySelectorAll('.slide-backdrop').forEach(backdrop => {
+        backdrop.addEventListener('click', (event) => {
+            if (event.target === backdrop) {
+                closeSlide(paymentSlide);
+                closeSlide(socialMediaSlide);
+            }
+        });
+    });
+
+    // --- Fungsi Salin ke Clipboard ---
+    copyButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const textToCopy = button.dataset.copy;
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => {
+                    showToast(`Nomor ${textToCopy} berhasil disalin!`, 'success', 'Disalin');
+                })
+                .catch(err => {
+                    console.error('Gagal menyalin: ', err);
+                    showToast('Gagal menyalin nomor.', 'error', 'Error');
+                });
+        });
+    });
+
+    // --- Fungsi Download QRIS ---
+    downloadQrisBtn.addEventListener('click', () => {
+        const imageUrl = qrImage.src;
+        const link = document.createElement('a');
+        link.href = imageUrl;
+        link.download = 'QRIS_KepfoЯannaS.jpg'; // Nama file saat diunduh
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast('QRIS berhasil diunduh!', 'success', 'Unduh Berhasil');
+    });
+
+    // --- Efek Latar Belakang Partikel ---
+    const particlesContainer = document.getElementById('particles');
+    const numParticles = 50; // Jumlah partikel yang akan dibuat
 
     for (let i = 0; i < numParticles; i++) {
         const particle = document.createElement('div');
         particle.classList.add('particle');
-        
-        const x = Math.random() * 100; 
-        const y = Math.random() * 100; 
-        particle.style.left = `${x}vw`;
-        particle.style.top = `${y}vh`;
-
-        const size = Math.random() * 5 + 3; 
+        const size = Math.random() * 5 + 2; // Ukuran antara 2px dan 7px
         particle.style.width = `${size}px`;
         particle.style.height = `${size}px`;
-
-        const animationDelay = Math.random() * 6; 
-        particle.style.animationDelay = `${animationDelay}s`;
-        
-        const animationDuration = Math.random() * 10 + 6; 
-        particle.style.setProperty('--animation-duration', `${animationDuration}s`); 
-        particle.style.setProperty('--particle-opacity', `${Math.random() * 0.4 + 0.6}`); 
-
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.animationDuration = `${Math.random() * 10 + 5}s`; // Durasi animasi 5-15 detik
+        particle.style.animationDelay = `${Math.random() * 5}s`; // Penundaan acak
         particlesContainer.appendChild(particle);
     }
-}
 
-/**
- * Handles successful login: shows main content, sets user status, plays audio.
- * @param {string} username - The username of the logged-in user.
- * @param {number} userId - The ID of the logged-in user.
- */
-function handleLoginSuccess(username, userId) {
-    showToast('Berhasil!', `Selamat datang, ${username}!`, 'success');
-    currentUserId = userId;
-    currentUsername = username; // Store for auto-login
-    localStorage.setItem('loggedInUser', JSON.stringify({ username: username, id: userId })); // Save login session
-
-    if (myUserIdElement) myUserIdElement.textContent = currentUserId; 
-    if (userStatusSection) {
-        userStatusSection.style.display = 'flex'; 
-        setTimeout(() => {
-            userStatusSection.classList.add('visible'); 
-        }, 50); 
-    }
-    
-    if (loginRegisterContainer) loginRegisterContainer.classList.remove('active'); 
-    if (mainContent) mainContent.style.display = 'block'; 
-    setMyStatus('online'); 
-    updateDynamicStats(); // Update stats on login
-    if (gatewayAudio) gatewayAudio.play().catch(e => console.error("Audio play failed:", e)); 
-    if (!otherUsersStatusInterval) { // Start interval only if not already running
-        otherUsersStatusInterval = setInterval(updateOtherUsersStatus, 5000); 
-    }
-    // Set bot status randomly on login
-    isBotOnline = Math.random() < 0.7; // 70% chance to be online
-    updateBotStatusDisplay();
-}
-
-/**
- * Handles user logout.
- */
-function handleLogout() {
-    localStorage.removeItem('loggedInUser'); // Clear login session
-    currentUserId = null;
-    currentUsername = null;
-
-    if (userStatusSection) {
-        userStatusSection.classList.remove('visible');
-        setTimeout(() => {
-            userStatusSection.style.display = 'none'; // Hide after fade out
-        }, 500); 
-    }
-    if (mainContent) mainContent.style.display = 'none'; 
-    if (loginRegisterContainer) loginRegisterContainer.classList.add('active'); // Show login form again
-    setMyStatus('idle'); // Set status back to idle
-    showToast('Berhasil!', 'Anda telah logout.', 'info');
-    if (otherUsersStatusInterval) { // Clear interval for other users status
-        clearInterval(otherUsersStatusInterval);
-        otherUsersStatusInterval = null;
-    }
-    // Reset bot status on logout
-    isBotOnline = false;
-    isDelayActive = false;
-    updateBotStatusDisplay();
-    if (delayStatusElement) delayStatusElement.classList.remove('active'); // Ensure delay indicator is off
-    if (delayStatusElement) delayStatusElement.textContent = 'OFF';
-}
-
-/**
- * Updates the display of bot status.
- */
-function updateBotStatusDisplay() {
-    if (botStatusElement) {
-        botStatusElement.textContent = isBotOnline ? 'Online' : 'Offline';
-        botStatusElement.classList.remove('status-online', 'status-offline');
-        botStatusElement.classList.add(isBotOnline ? 'status-online' : 'status-offline');
-    }
-}
-
-/**
- * Validates a given phone number.
- * Simple validation: starts with 62, minimum 10 digits, max 15.
- * @param {string} number - The phone number to validate.
- * @returns {boolean}
- */
-function isValidPhoneNumber(number) {
-    // Basic validation for Indonesian numbers
-    const regex = /^62[0-9]{8,13}$/; // Starts with 62, 8-13 more digits
-    return regex.test(number);
-}
-
-
-// --- Event Listeners and Main Logic ---
-
-// 1. Initial Page Load & Splash Screen Logic
-window.addEventListener('load', () => {
-    // Initialize theme from localStorage
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-        body.setAttribute('data-theme', savedTheme);
-    } else {
-        body.setAttribute('data-theme', 'dark'); 
-    }
-    
-    createParticles(); // Create dynamic particles
-    updateDynamicStats(); // Initial update of dynamic stats
-    setInterval(updateDynamicStats, 24 * 60 * 60 * 1000); // Update daily
-
-    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-
-    // Simulate loading bar progress
-    let progress = 0;
-    const interval = setInterval(() => {
-        progress += 10;
-        if (loadingBar) loadingBar.style.width = `${progress}%`;
-        if (progress >= 100) {
-            clearInterval(interval);
-            // After loading bar is full, start splash screen fade out
-            setTimeout(() => {
-                if (splashScreen) {
-                    splashScreen.classList.add('hidden'); 
-                }
-                setTimeout(() => {
-                    if (splashScreen) {
-                        splashScreen.style.display = 'none'; 
-                    }
-                    if (loggedInUser && registeredUsers[loggedInUser.username] && registeredUsers[loggedInUser.username].id === loggedInUser.id) {
-                        // If logged in, skip login form
-                        handleLoginSuccess(loggedInUser.username, loggedInUser.id);
-                    } else {
-                        // Otherwise, show login form
-                        if (loginRegisterContainer) {
-                            loginRegisterContainer.classList.add('active'); 
-                        }
-                    }
-                }, 1000); // Wait for fade-out animation
-            }, 500); 
-        }
-    }, 100); 
-
-    // Start other users status interval regardless of login state (updates only if content is visible)
-    otherUsersStatusInterval = setInterval(updateOtherUsersStatus, 5000);
+    // Panggil fungsi ini saat halaman dimuat
+    checkLoginStatus();
 });
-
-
-// 2. Login/Register Form Logic
-if (toggleAuthMode) {
-    toggleAuthMode.addEventListener('click', () => {
-        isLoginMode = !isLoginMode;
-        if (formTitle) formTitle.textContent = isLoginMode ? 'Login' : 'Daftar Akun Baru';
-        if (authButton) authButton.textContent = isLoginMode ? 'Login' : 'Daftar';
-        if (toggleAuthMode) toggleAuthMode.textContent = isLoginMode ? 'Belum punya akun? Buat akun baru' : 'Sudah punya akun? Login';
-        if (passwordInput) passwordInput.setAttribute('autocomplete', isLoginMode ? 'current-password' : 'new-password');
-        
-        if (usernameInput) usernameInput.value = '';
-        if (passwordInput) passwordInput.value = '';
-    });
-}
-
-if (authButton) {
-    authButton.addEventListener('click', () => {
-        const username = usernameInput ? usernameInput.value.trim() : '';
-        const password = passwordInput ? passwordInput.value.trim() : '';
-
-        if (username === "" || password === "") {
-            showToast('Peringatan', 'Username dan password tidak boleh kosong!', 'warning');
-            return;
-        }
-
-        if (isLoginMode) {
-            // --- Simulate Login ---
-            if (registeredUsers[username] && registeredUsers[username].password === password) {
-                handleLoginSuccess(username, registeredUsers[username].id);
-            } else {
-                showToast('Gagal', 'Username atau password salah!', 'error');
-            }
-        } else {
-            // --- Simulate Registration ---
-            if (registeredUsers[username]) {
-                showToast('Gagal', 'Username sudah terdaftar. Gunakan nama lain.', 'error');
-            } else {
-                // Ensure 'annas' is always 12345678, others get random
-                const newUserId = (username === 'annas' && password === '1') ? 12345678 : generateUniqueId();
-                registeredUsers[username] = { password: password, id: newUserId };
-                localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers)); 
-                showToast('Berhasil!', 'Akun berhasil dibuat! Silakan login.', 'success');
-                
-                if (usernameInput) usernameInput.value = '';
-                if (passwordInput) passwordInput.value = '';
-                isLoginMode = true; 
-                if (formTitle) formTitle.textContent = 'Login';
-                if (authButton) authButton.textContent = 'Login';
-                if (toggleAuthMode) toggleAuthMode.textContent = 'Belum punya akun? Buat akun baru';
-                if (passwordInput) passwordInput.setAttribute('autocomplete', 'current-password');
-            }
-        }
-    });
-}
-
-
-// 3. Payment Slide Logic
-if (openPaymentSlideButton) {
-    openPaymentSlideButton.addEventListener('click', () => {
-        if (paymentSlide) paymentSlide.classList.add('active');
-        if (body) body.classList.add('payment-slide-active'); 
-    });
-}
-
-if (closePaymentSlideButton) {
-    closePaymentSlideButton.addEventListener('click', () => {
-        if (paymentSlide) paymentSlide.classList.remove('active');
-        if (body) body.classList.remove('payment-slide-active');
-    });
-}
-
-// 4. Social Media Slide Logic
-if (openSosmedSlideButton) {
-    openSosmedSlideButton.addEventListener('click', () => {
-        if (socialMediaSlide) socialMediaSlide.classList.add('active');
-        if (body) body.classList.add('payment-slide-active'); 
-    });
-}
-
-if (closeSosmedSlideButton) {
-    closeSosmedSlideButton.addEventListener('click', () => {
-        if (socialMediaSlide) socialMediaSlide.classList.remove('active');
-        if (body) body.classList.remove('payment-slide-active');
-    });
-}
-
-// 5. Bug Panel Logic
-if (openBugSlideButton) {
-    openBugSlideButton.addEventListener('click', () => {
-        if (bugSlide) bugSlide.classList.add('active');
-        if (body) body.classList.add('payment-slide-active'); // Re-use class for blocking scroll
-        updateBotStatusDisplay(); // Update status when panel opens
-    });
-}
-
-if (closeBugSlideButton) {
-    closeBugSlideButton.addEventListener('click', () => {
-        if (bugSlide) bugSlide.classList.remove('active');
-        if (body) body.classList.remove('payment-slide-active');
-    });
-}
-
-if (sendPairingCodeButton) {
-    sendPairingCodeButton.addEventListener('click', () => {
-        if (!isBotOnline) {
-            showToast('Bot Offline', 'Bot tidak online untuk mengirim kode pairing.', 'error');
-            return;
-        }
-        const targetNo = bugNoInput ? bugNoInput.value.trim() : '';
-        if (!isValidPhoneNumber(targetNo)) {
-            showToast('Invalid Number', 'Nomor target tidak valid. Gunakan format 62xxxxxx.', 'warning');
-            return;
-        }
-        const selectedOs = document.querySelector('input[name="targetOs"]:checked');
-        const osValue = selectedOs ? selectedOs.value : 'unknown';
-        
-        // Simulating bug sent effect
-        showToast('Bug Sent!', `Mengirim kode pairing ke ${targetNo} (${osValue})...`, 'success');
-    });
-}
-
-if (sendNoTargetButton) {
-    sendNoTargetButton.addEventListener('click', () => {
-        if (!isBotOnline) {
-            showToast('Bot Offline', 'Bot tidak online untuk mengirim tanpa target.', 'error');
-            return;
-        }
-        showToast('Bug Sent!', 'Mengirim tanpa nomor target...', 'success');
-    });
-}
-
-if (toggleDelayButton) {
-    toggleDelayButton.addEventListener('click', () => {
-        if (!isBotOnline) {
-            showToast('Bot Offline', 'Bot tidak online untuk mengubah delay.', 'error');
-            return;
-        }
-        isDelayActive = !isDelayActive;
-        if (delayStatusElement) {
-            delayStatusElement.textContent = isDelayActive ? 'ON' : 'OFF';
-            delayStatusElement.classList.toggle('active', isDelayActive);
-        }
-        showToast('Delay Status', `Delay bot sekarang ${isDelayActive ? 'AKTIF' : 'NONAKTIF'}.`, 'info');
-    });
-}
-
-if (triggerFCButton) {
-    triggerFCButton.addEventListener('click', () => {
-        if (!isBotOnline) {
-            showToast('Bot Offline', 'Bot tidak online untuk trigger FC.', 'error');
-            return;
-        }
-        const targetNo = bugNoInput ? bugNoInput.value.trim() : '';
-        if (!isValidPhoneNumber(targetNo)) {
-            showToast('Invalid Number', 'Nomor target tidak valid. Gunakan format 62xxxxxx.', 'warning');
-            return;
-        }
-        showToast('Bug Sent!', `Mengirim perintah FC ke ${targetNo}...`, 'success');
-    });
-}
-
-// 6. Logout Logic
-if (logoutButton) {
-    logoutButton.addEventListener('click', handleLogout);
-}
-
-
-// 7. Theme Toggle Logic
-if (themeToggle) {
-    themeToggle.addEventListener('click', () => {
-        const currentTheme = body.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        if (body) body.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme); 
-        createParticles(); 
-    });
-}
-
-// 8. Copy Button Logic for payment methods
-document.querySelectorAll('.copy-button').forEach(button => {
-    button.addEventListener('click', () => {
-        const textToCopy = button.dataset.copy;
-        if (textToCopy) {
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                showToast('Berhasil', 'Nomor berhasil disalin!', 'success');
-            }).catch(err => {
-                showToast('Gagal', 'Gagal menyalin nomor!', 'error');
-                console.error('Gagal menyalin:', err);
-            });
-        } else {
-            showToast('Error', 'Tidak ada teks untuk disalin!', 'error');
-        }
-    });
-});
-
-// 9. Status Toggle Logic (Dana, GoPay, OVO)
-document.querySelectorAll('.status-toggle').forEach(button => {
-    button.addEventListener('click', () => {
-        const paymentCard = button.closest('.payment-card');
-        if (!paymentCard) return;
-
-        const currentStatus = paymentCard.dataset.status;
-        const copyButton = paymentCard.querySelector('.copy-button');
-        const statusText = button.querySelector('.status-text');
-        const statusIndicator = button.querySelector('.status-indicator');
-
-        if (currentStatus === 'ready') {
-            paymentCard.dataset.status = 'not-ready';
-            if (statusText) statusText.textContent = 'Not Ready';
-            if (statusIndicator) {
-                statusIndicator.classList.remove('ready');
-                statusIndicator.classList.add('not-ready');
-            }
-            if (copyButton) copyButton.disabled = true;
-            showToast('Status Diperbarui', 'Metode pembayaran menjadi Tidak Siap.', 'warning');
-        } else {
-            paymentCard.dataset.status = 'ready';
-            if (statusText) statusText.textContent = 'Ready';
-            if (statusIndicator) {
-                statusIndicator.classList.remove('not-ready');
-                statusIndicator.classList.add('ready');
-            }
-            if (copyButton) copyButton.disabled = false;
-            showToast('Status Diperbarui', 'Metode pembayaran menjadi Siap.', 'success');
-        }
-    });
-});
-
-// 10. Download QRIS Logic (placeholder)
-const downloadQrisButton = document.getElementById('downloadQris');
-if (downloadQrisButton) {
-    downloadQrisButton.addEventListener('click', () => {
-        showToast('Informasi', 'Fungsi unduh QRIS belum diimplementasikan.', 'info');
-    });
-}
