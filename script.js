@@ -1,12 +1,12 @@
 // script.js
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize Socket.IO connection
-    const socket = io(); // Connects to the server where socket.io is running
+    const socket = io(); 
 
     // DOM Elements
     const commandListDiv = document.getElementById('commandList');
     const phoneNumberInput = document.getElementById('phoneNumberInput');
-    const ownerTokenInput = document.getElementById('ownerTokenInput');
+    // const ownerAccessKeyInput = document.getElementById('ownerAccessKeyInput'); // Dihapus dari sini
     const requestPairingBtn = document.getElementById('requestPairingBtn');
     const connectionStatus = document.getElementById('connectionStatus');
     const pairingStatus = document.getElementById('pairingStatus');
@@ -14,10 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const qrCodeCanvas = document.getElementById('qrCodeCanvas');
     const bugCommandSelect = document.getElementById('bugCommandSelect');
     const bugTargetInput = document.getElementById('bugTargetInput');
-    const bugOwnerTokenInput = document.getElementById('bugOwnerTokenInput');
+    // const bugOwnerAccessKeyInput = document.getElementById('bugOwnerAccessKeyInput'); // Dihapus dari sini
     const sendBugBtn = document.getElementById('sendBugBtn');
     const bugStatus = document.getElementById('bugStatus');
-    const ownerTokenActionsInput = document.getElementById('ownerTokenActionsInput');
+    // const ownerAccessKeyActionsInput = document.getElementById('ownerAccessKeyActionsInput'); // Dihapus dari sini
     const deleteSessionBtn = document.getElementById('deleteSessionBtn');
     const restartBotBtn = document.getElementById('restartBotBtn');
     const actionStatus = document.getElementById('actionStatus');
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Socket.IO Event Listeners ---
     socket.on('connect', () => {
         console.log('Connected to server via WebSocket');
-        localStorage.setItem('socketId', socket.id); // Store socket ID for API requests
+        localStorage.setItem('socketId', socket.id); 
     });
 
     socket.on('disconnect', () => {
@@ -105,15 +105,15 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.on('whatsapp-qr', (data) => {
         pairingStatus.textContent = 'Scan QR Code or use the code below:';
         pairingStatus.style.color = '#ffd700';
-        pairingCodeDisplay.textContent = data.qrCode; // Display QR string
-        drawQrCode(data.qrCode); // Draw QR code on canvas
+        pairingCodeDisplay.textContent = data.qrCode; 
+        drawQrCode(data.qrCode); 
     });
 
     socket.on('whatsapp-pairing-code', (data) => {
         pairingStatus.textContent = `Pairing code received for ${data.phoneNumber}:`;
         pairingStatus.style.color = '#00ff00';
         pairingCodeDisplay.innerHTML = `<code>${data.code}</code><p>Enter this code in WhatsApp on your phone.</p>`;
-        if (qrCodeCanvas) qrCodeCanvas.style.display = 'none'; // Hide QR if code is shown
+        if (qrCodeCanvas) qrCodeCanvas.style.display = 'none'; 
     });
 
     socket.on('whatsapp-status', (data) => {
@@ -157,9 +157,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- API Interactions ---
 
-    // Function to make API requests with owner token and socket ID
+    // Function to make API requests (simplified without owner token)
     async function makeApiRequest(endpoint, method, body, targetStatusElement) {
-        const ownerToken = body.ownerToken || '';
         const socketId = localStorage.getItem('socketId');
 
         try {
@@ -167,7 +166,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 method: method,
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-Owner-Token': ownerToken, // Send owner token in header
                     'X-Socket-ID': socketId // Send socket ID for targeted emits
                 },
                 body: JSON.stringify(body),
@@ -193,13 +191,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // Request WhatsApp Pairing
+    // Request WhatsApp Pairing (without owner token input)
     requestPairingBtn.addEventListener('click', async () => {
         const phoneNumber = phoneNumberInput.value.trim();
-        const ownerToken = ownerTokenInput.value.trim();
 
-        if (!phoneNumber || !ownerToken) {
-            pairingStatus.textContent = 'Mohon masukkan nomor telepon dan Owner Token.';
+        if (!phoneNumber) {
+            pairingStatus.textContent = 'Mohon masukkan nomor telepon.'; // Pesan disederhanakan
             pairingStatus.style.color = '#ff6347';
             pairingCodeDisplay.textContent = '';
             if (qrCodeCanvas) qrCodeCanvas.style.display = 'none';
@@ -211,17 +208,16 @@ document.addEventListener('DOMContentLoaded', () => {
         pairingCodeDisplay.textContent = '';
         if (qrCodeCanvas) qrCodeCanvas.style.display = 'none';
 
-        await makeApiRequest('/api/request-pairing', 'POST', { phoneNumber, ownerToken }, pairingStatus);
+        await makeApiRequest('/api/request-pairing', 'POST', { phoneNumber }, pairingStatus); // Body disederhanakan
     });
 
-    // Send Bug Command
+    // Send Bug Command (without owner token input)
     sendBugBtn.addEventListener('click', async () => {
         const command = bugCommandSelect.value;
         const target = bugTargetInput.value.trim();
-        const ownerToken = bugOwnerTokenInput.value.trim();
 
-        if (!command || !target || !ownerToken) {
-            bugStatus.textContent = 'Mohon pilih perintah, masukkan target, dan berikan Owner Token.';
+        if (!command || !target) {
+            bugStatus.textContent = 'Mohon pilih perintah dan masukkan target.'; // Pesan disederhanakan
             bugStatus.style.color = '#ff6347';
             return;
         }
@@ -229,37 +225,23 @@ document.addEventListener('DOMContentLoaded', () => {
         bugStatus.textContent = `Mengirim bug ${command} ke ${target}...`;
         bugStatus.style.color = '#ffd700';
 
-        await makeApiRequest('/api/send-bug', 'POST', { command, target, ownerToken }, bugStatus);
+        await makeApiRequest('/api/send-bug', 'POST', { command, target }, bugStatus); // Body disederhanakan
     });
 
-    // Delete WhatsApp Session
+    // Delete WhatsApp Session (without owner token input)
     deleteSessionBtn.addEventListener('click', async () => {
-        const ownerToken = ownerTokenActionsInput.value.trim();
-        if (!ownerToken) {
-            actionStatus.textContent = 'Mohon masukkan Owner Token Key.';
-            actionStatus.style.color = '#ff6347';
-            return;
-        }
-
         actionStatus.textContent = 'Meminta penghapusan sesi...';
         actionStatus.style.color = '#ffd700';
 
-        await makeApiRequest('/api/delete-session', 'POST', { ownerToken }, actionStatus);
+        await makeApiRequest('/api/delete-session', 'POST', {}, actionStatus); // Body disederhanakan
     });
 
-    // Restart Bot
+    // Restart Bot (without owner token input)
     restartBotBtn.addEventListener('click', async () => {
-        const ownerToken = ownerTokenActionsInput.value.trim();
-        if (!ownerToken) {
-            actionStatus.textContent = 'Mohon masukkan Owner Token Key.';
-            actionStatus.style.color = '#ff6347';
-            return;
-        }
-
         actionStatus.textContent = 'Meminta restart bot...';
         actionStatus.style.color = '#ffd700';
 
-        await makeApiRequest('/api/restart-bot', 'POST', { ownerToken }, actionStatus);
+        await makeApiRequest('/api/restart-bot', 'POST', {}, actionStatus); // Body disederhanakan
     });
 
     // QRCode.js is loaded via CDN link in index.html
