@@ -1,274 +1,330 @@
+// public/js/script.js
 document.addEventListener('DOMContentLoaded', () => {
-    const WEB_PANEL_BASE_URL = window.location.origin; // Sesuaikan jika Anda host di domain lain
-    const OWNER_TOKEN_KEY = '6878949999'; // Key untuk menyimpan token di localStorage
+    // Initialize Socket.IO connection
+    const socket = io(); // Connects to the server where socket.io is running
 
-    // --- Elemen UI ---
-    const navLinks = document.querySelectorAll('.main-nav ul li a');
-    const sections = document.querySelectorAll('main section');
-
-    // Dashboard Status
-    const waStatus = document.getElementById('waStatus');
-    const linkedNumber = document.getElementById('linkedNumber');
-    const platformInfo = document.getElementById('platform');
-    const cpuInfo = document.getElementById('cpu');
-    const hostnameInfo = document.getElementById('hostname');
-    const botUptimeInfo = document.getElementById('botUptime');
-    const processUptimeInfo = document.getElementById('processUptime');
-    const premiumCount = document.getElementById('premiumCount');
-    const adminCount = document.getElementById('adminCount');
-
-    // Pairing Form
-    const pairingForm = document.getElementById('pairingForm');
-    const waNumberInput = document.getElementById('waNumberInput');
-    const pairingResult = document.getElementById('pairingResult');
-
-    // Bug Form
-    const bugForm = document.getElementById('bugForm');
-    const targetNumberInput = document.getElementById('targetNumberInput');
-    const bugTypeSelect = document.getElementById('bugTypeSelect');
-    const bugResult = document.getElementById('bugResult');
-    const bugProgressBar = document.getElementById('bugProgressBar');
-    const bugProgressText = document.getElementById('bugProgressText');
-
-    // Admin Tools
+    // DOM Elements
+    const commandListDiv = document.getElementById('commandList');
+    const phoneNumberInput = document.getElementById('phoneNumberInput');
     const ownerTokenInput = document.getElementById('ownerTokenInput');
-    const premiumUserIdInput = document.getElementById('premiumUserId');
-    const adminUserIdInput = document.getElementById('adminUserId');
-    const cooldownDurationInput = document.getElementById('cooldownDuration');
-    const adminToolResult = document.getElementById('adminToolResult');
+    const requestPairingBtn = document.getElementById('requestPairingBtn');
+    const connectionStatus = document.getElementById('connectionStatus');
+    const pairingStatus = document.getElementById('pairingStatus');
+    const pairingCodeDisplay = document.getElementById('pairingCodeDisplay');
+    const qrCodeCanvas = document.getElementById('qrCodeCanvas');
+    const bugCommandSelect = document.getElementById('bugCommandSelect');
+    const bugTargetInput = document.getElementById('bugTargetInput');
+    const bugOwnerTokenInput = document.getElementById('bugOwnerTokenInput');
+    const sendBugBtn = document.getElementById('sendBugBtn');
+    const bugStatus = document.getElementById('bugStatus');
+    const ownerTokenActionsInput = document.getElementById('ownerTokenActionsInput');
+    const deleteSessionBtn = document.getElementById('deleteSessionBtn');
+    const restartBotBtn = document.getElementById('restartBotBtn');
+    const actionStatus = document.getElementById('actionStatus');
 
-    // Footer
-    document.getElementById('currentYear').textContent = new Date().getFullYear();
+    // Bot Commands to display (static for now, can be fetched from API later)
+    const commands = [
+        { name: "Come On", description: "Delay Duration + Blank (No Invis) on target. Kirim 100x tanpa henti.", usage: "/comeon <number>" },
+        { name: "Get Out", description: "Executes a Delay Invisible sequence on target. Kirim 100x tanpa henti.", usage: "/getout <number>" },
+        { name: "Loving", description: "Performs Duration Hours attack on target. Kirim 100x tanpa henti.", usage: "/loving <number>" },
+        { name: "Shibal", description: "Initiates Low Delay invis attack on target. Kirim 100x tanpa henti.", usage: "/shibal <number>" },
+        { name: "Exsecute", description: "Triggers High Delay invis attack on target. Kirim 100x tanpa henti.", usage: "/exsecute <number>" },
+        { name: "Crash Channel", description: "Attempts to crash a WhatsApp channel (newsletter). Kirim 200x tanpa henti.", usage: "/crashch <channel_number>" },
+        { name: "Set Cooldown", description: "Sets the global cooldown duration for commands (Owner only).", usage: "/setjeda <duration> (e.g., 60s, 10m)" },
+        { name: "Add Premium", description: "Grants premium access to a user ID (Owner only).", usage: "/addprem <user_id>" },
+        { name: "Delete Premium", description: "Revokes premium access from a user ID (Owner only).", usage: "/delprem <user_id>" },
+        { name: "Add Admin", description: "Grants admin access to a user ID (Owner only).", usage: "/addadmin <user_id>" },
+        { name: "Delete Admin", description: "Revokes admin access from a user ID (Owner only).", usage: "/deladmin <user_id>" },
+        { name: "Delete Session", description: "Deletes the current WhatsApp session (Owner only).", usage: "/delsesi" },
+        { name: "Restart Bot", description: "Restarts the bot application (Owner only).", usage: "/restart" },
+        { name: "Check Premium", description: "Checks your current premium status.", usage: "/cekprem" },
+        { name: "Add Pairing", description: "Initiates WhatsApp pairing process for the bot (Owner only).", usage: "/addpairing <phone_number>" },
+    ];
 
-    // --- Fungsi Helper ---
-    async function fetchData(url, method = 'GET', body = null, useOwnerToken = false) {
-        const options = {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        };
+    // Populate command list
+    commands.forEach(cmd => {
+        const commandCard = document.createElement('div');
+        commandCard.classList.add('command-card');
+        commandCard.innerHTML = `
+            <h3>${cmd.name}</h3>
+            <p>${cmd.description}</p>
+            <p>Usage: <code>${cmd.usage}</code></p>
+        `;
+        commandListDiv.appendChild(commandCard);
+    });
 
-        if (body) {
-            options.body = JSON.stringify(body);
-        }
+    // Populate bug command select dropdown
+    commands.filter(cmd => cmd.name.includes('Bug') || ['Come On', 'Get Out', 'Loving', 'Shibal', 'Exsecute', 'Crash Channel'].includes(cmd.name))
+            .forEach(cmd => {
+                const option = document.createElement('option');
+                option.value = cmd.name.toLowerCase().replace(/ /g, ''); // Convert "Come On" to "comeon"
+                option.textContent = cmd.name;
+                bugCommandSelect.appendChild(option);
+            });
 
-        if (useOwnerToken) {
-            const token = localStorage.getItem(OWNER_TOKEN_KEY);
-            if (token) {
-                options.headers['Authorization'] = `Bearer ${token}`;
-            } else {
-                displayResult(adminToolResult, 'warning', 'Owner Token tidak ditemukan. Harap masukkan token Anda.', true);
-                throw new Error('Owner Token missing');
-            }
-        }
-
-        const response = await fetch(`${WEB_PANEL_BASE_URL}${url}`, options);
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-    }
-
-    function displayResult(element, type, message, clearAfter = false) {
-        element.textContent = message;
-        element.className = `result-box ${type}`; // Add type class for styling (e.g., success, error, info, warning)
-        element.style.display = 'block';
-
-        if (clearAfter) {
-            setTimeout(() => {
-                element.style.display = 'none';
-                element.textContent = '';
-                element.className = 'result-box';
-            }, 5000); // Clear after 5 seconds
-        }
-    }
-
-    function updateProgressBar(progress) {
-        bugProgressBar.style.width = `${progress}%`;
-        bugProgressText.textContent = `${progress}% Selesai`;
-    }
-
-    function showSection(id) {
-        sections.forEach(section => {
-            section.classList.remove('active');
-        });
-        navLinks.forEach(link => {
-            link.classList.remove('active');
-        });
-
-        document.getElementById(id).classList.add('active');
-        document.querySelector(`.main-nav ul li a[href="#${id}"]`).classList.add('active');
-    }
-
-    function scrollToSection(id) {
-        document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
-        showSection(id); // Also activate the section in navigation
-    }
-
-    // --- Inisialisasi & Event Listeners ---
-
-    // Navigasi
-    navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
+    // Smooth scrolling for navigation links
+    document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
             e.preventDefault();
-            const targetId = link.getAttribute('href').substring(1);
-            showSection(targetId);
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
         });
     });
 
-    // Load initial dashboard data
-    async function loadDashboardStatus() {
-        try {
-            const data = await fetchData('/api/status');
-            waStatus.textContent = data.whatsappConnected ? 'Terhubung ✅' : 'Terputus ❌';
-            linkedNumber.textContent = data.linkedNumber || 'Belum Terhubung';
-            platformInfo.textContent = data.platform || '-';
-            cpuInfo.textContent = data.cpu || '-';
-            hostnameInfo.textContent = data.hostname || '-';
-            botUptimeInfo.textContent = data.uptimeBot || '-';
-            processUptimeInfo.textContent = data.uptimeProcess || '-';
-            premiumCount.textContent = data.premiumUsersCount !== undefined ? data.premiumUsersCount : '-';
-            adminCount.textContent = data.adminUsersCount !== undefined ? data.adminUsersCount : '-';
-            // Update WA pairing section message if connected
-            if (data.whatsappConnected) {
-                displayResult(pairingResult, 'success', `WhatsApp sudah terhubung dengan nomor: ${data.linkedNumber}.`);
-            }
-        } catch (error) {
-            console.error('Error fetching dashboard status:', error);
-            displayResult(waStatus.parentElement, 'error', 'Gagal memuat status bot.', true);
+    // Function to draw QR code on canvas
+    function drawQrCode(qrCodeData) {
+        if (!qrCodeCanvas) {
+            console.error("QR code canvas not found.");
+            return;
         }
+        qrCodeCanvas.style.display = 'block';
+        const qrcode = new QRCode(qrCodeCanvas, {
+            text: qrCodeData,
+            width: 200,
+            height: 200,
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H
+        });
     }
 
-    // Load owner token from localStorage
-    const storedOwnerToken = localStorage.getItem(OWNER_TOKEN_KEY);
-    if (storedOwnerToken) {
-        ownerTokenInput.value = storedOwnerToken;
-    }
-    // Save token on input change
-    ownerTokenInput.addEventListener('input', () => {
-        localStorage.setItem(OWNER_TOKEN_KEY, ownerTokenInput.value);
+    // --- Socket.IO Event Listeners ---
+    socket.on('connect', () => {
+        console.log('Connected to server via WebSocket');
+        // Store socket ID in a global variable or send it with API requests
+        localStorage.setItem('socketId', socket.id);
     });
 
-    // Pairing Form Submission
-    if (pairingForm) {
-        pairingForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const phoneNumber = waNumberInput.value.trim();
-            if (!phoneNumber) {
-                displayResult(pairingResult, 'error', 'Harap masukkan nomor WhatsApp.');
-                return;
-            }
-            displayResult(pairingResult, 'info', '🔄 Mengirim permintaan pairing...');
-            try {
-                // Untuk pairing, kita juga perlu token owner
-                const data = await fetchData('/api/addpairing', 'POST', { phoneNumber }, true); // true for useOwnerToken
-                if (data.success) {
-                    displayResult(pairingResult, 'success', `✅ Kode Pairing: ${data.code}. Silakan scan atau masukkan di WhatsApp Anda.`);
-                    loadDashboardStatus(); // Refresh status setelah pairing
-                } else {
-                    displayResult(pairingResult, 'error', `❌ ${data.message}`);
-                }
-            } catch (error) {
-                displayResult(pairingResult, 'error', `⚠️ Gagal melakukan pairing: ${error.message}`);
-                console.error('Pairing Error:', error);
-            }
-        });
-    }
+    socket.on('disconnect', () => {
+        console.log('Disconnected from server via WebSocket');
+        connectionStatus.textContent = 'WhatsApp Status: Disconnected from server.';
+        connectionStatus.style.color = '#ff6347';
+    });
 
-    // Bug Form Submission
-    if (bugForm) {
-        bugForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const targetNumber = targetNumberInput.value.trim();
-            const bugType = bugTypeSelect.value;
+    socket.on('whatsapp-qr', (data) => {
+        pairingStatus.textContent = 'Scan QR Code or use the code below:';
+        pairingStatus.style.color = '#ffd700';
+        pairingCodeDisplay.textContent = data.qrCode;
+        drawQrCode(data.qrCode);
+    });
 
-            if (!targetNumber || !bugType) {
-                displayResult(bugResult, 'error', 'Harap masukkan nomor target dan pilih jenis bug.');
-                return;
-            }
+    socket.on('whatsapp-pairing-code', (data) => {
+        pairingStatus.textContent = `Pairing code received for ${data.phoneNumber}:`;
+        pairingStatus.style.color = '#00ff00';
+        pairingCodeDisplay.innerHTML = `<code>${data.code}</code><p>Enter this code in WhatsApp on your phone.</p>`;
+        if (qrCodeCanvas) qrCodeCanvas.style.display = 'none'; // Hide QR if code is shown
+    });
 
-            displayResult(bugResult, 'info', `🚀 Mengirim bug '${bugType}' ke ${targetNumber}...`);
-            updateProgressBar(0);
+    socket.on('whatsapp-status', (data) => {
+        connectionStatus.textContent = `WhatsApp Status: ${data.status}`;
+        connectionStatus.style.color = data.status === 'Successfully' ? '#00ff00' : '#ff6347';
+        if (data.status === 'Successfully') {
+            connectionStatus.textContent += ` (Connected to: ${data.number})`;
+            pairingStatus.textContent = 'WhatsApp is connected!';
+            pairingStatus.style.color = '#00ff00';
+            pairingCodeDisplay.textContent = '';
+            if (qrCodeCanvas) qrCodeCanvas.style.display = 'none';
+        } else if (data.status === 'Logged Out' || data.status === 'Session Deleted') {
+            pairingStatus.textContent = data.message;
+            pairingStatus.style.color = '#ff6347';
+            pairingCodeDisplay.textContent = '';
+            if (qrCodeCanvas) qrCodeCanvas.style.display = 'none';
+        }
+    });
 
-            let currentProgress = 0;
-            const totalSteps = 10; // Jumlah estimasi langkah untuk progress bar
-            const intervalTime = 500; // Milidetik per langkah
+    socket.on('whatsapp-pairing-error', (data) => {
+        pairingStatus.textContent = `Pairing Error for ${data.phoneNumber}: ${data.error}`;
+        pairingStatus.style.color = '#ff6347';
+        pairingCodeDisplay.textContent = '';
+        if (qrCodeCanvas) qrCodeCanvas.style.display = 'none';
+    });
 
-            const progressInterval = setInterval(() => {
-                currentProgress += (100 / totalSteps);
-                if (currentProgress > 95) currentProgress = 95; // Stop before 100% until actual completion
-                updateProgressBar(Math.round(currentProgress));
-            }, intervalTime);
+    socket.on('bug-progress', (data) => {
+        bugStatus.textContent = `[${data.status.toUpperCase()}] ${data.message}`;
+        bugStatus.style.color = data.status === 'completed' ? '#00ff00' : (data.status === 'error' ? '#ff6347' : '#ffd700');
+    });
+
+    socket.on('bot-status', (data) => {
+        actionStatus.textContent = `Bot Status: ${data.message}`;
+        actionStatus.style.color = data.status === 'restarting' ? '#ffd700' : '#00ff00';
+    });
 
 
-            try {
-                // Menggunakan token owner untuk mengirim bug juga
-                const data = await fetchData(`/api/sendbug/${bugType}`, 'POST', { targetNumber }, true);
+    // --- API Interactions ---
 
-                clearInterval(progressInterval);
-                updateProgressBar(100);
-                if (data.success) {
-                    displayResult(bugResult, 'success', `✅ ${data.message}`);
-                } else {
-                    displayResult(bugResult, 'error', `❌ ${data.message}`);
-                }
-            } catch (error) {
-                clearInterval(progressInterval);
-                updateProgressBar(0);
-                displayResult(bugResult, 'error', `⚠️ Gagal mengirim bug: ${error.message}`);
-                console.error('Bug Sending Error:', error);
-            }
-        });
-    }
+    // Request WhatsApp Pairing
+    requestPairingBtn.addEventListener('click', async () => {
+        const phoneNumber = phoneNumberInput.value.trim();
+        const ownerToken = ownerTokenInput.value.trim();
+        const socketId = localStorage.getItem('socketId'); // Get the current socket ID
 
-    // Admin Tools Functions
-    window.callAdminTool = async (action) => {
-        let userId;
-        let duration;
-        let payload = {};
-        let endpoint = `/api/${action}`;
-
-        if (action === 'addprem' || action === 'delprem') {
-            userId = premiumUserIdInput.value.trim();
-            if (!userId) {
-                displayResult(adminToolResult, 'error', 'ID Pengguna Premium wajib diisi.'); return;
-            }
-            payload = { userId };
-        } else if (action === 'addadmin' || action === 'deladmin') {
-            userId = adminUserIdInput.value.trim();
-            if (!userId) {
-                displayResult(adminToolResult, 'error', 'ID Pengguna Admin wajib diisi.'); return;
-            }
-            payload = { userId };
-        } else if (action === 'setjeda') {
-            duration = cooldownDurationInput.value.trim();
-            if (!duration) {
-                displayResult(adminToolResult, 'error', 'Durasi cooldown wajib diisi (e.g., 60s, 5m).'); return;
-            }
-            payload = { duration };
+        if (!phoneNumber || !ownerToken) {
+            pairingStatus.textContent = 'Please enter phone number and Owner Token.';
+            pairingStatus.style.color = '#ff6347';
+            pairingCodeDisplay.textContent = '';
+            if (qrCodeCanvas) qrCodeCanvas.style.display = 'none';
+            return;
         }
 
-        displayResult(adminToolResult, 'info', `🔄 Mengirim permintaan '${action}'...`);
+        pairingStatus.textContent = 'Requesting pairing code...';
+        pairingStatus.style.color = '#ffd700';
+        pairingCodeDisplay.textContent = '';
+        if (qrCodeCanvas) qrCodeCanvas.style.display = 'none'; // Clear any previous QR
 
         try {
-            const data = await fetchData(endpoint, 'POST', payload, true); // true for useOwnerToken
-            if (data.success) {
-                displayResult(adminToolResult, 'success', `✅ ${data.message}`);
-                loadDashboardStatus(); // Refresh dashboard status
+            const response = await fetch('/api/request-pairing', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Owner-Token': ownerToken, // Send owner token in header
+                    'X-Socket-ID': socketId // Send socket ID so server knows where to emit back
+                },
+                body: JSON.stringify({ phoneNumber }),
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                 pairingStatus.textContent = `Error: ${data.error || 'Failed to request pairing.'}`;
+                 pairingStatus.style.color = '#ff6347';
             } else {
-                displayResult(adminToolResult, 'error', `❌ ${data.message}`);
+                 if (data.status === 'info') { // If already connected
+                    pairingStatus.textContent = `Status: ${data.message}`;
+                    pairingStatus.style.color = '#ffd700';
+                 } else { // Pairing initiated
+                    pairingStatus.textContent = `Pairing initiated. Check below for code/QR...`;
+                    pairingStatus.style.color = '#ffd700';
+                    // Actual QR/code will come via Socket.IO
+                 }
             }
         } catch (error) {
-            displayResult(adminToolResult, 'error', `⚠️ Gagal menjalankan ${action}: ${error.message}`);
-            console.error(`Admin Tool Error (${action}):`, error);
+            console.error('Error requesting pairing:', error);
+            pairingStatus.textContent = 'Failed to connect to server for pairing. Check console.';
+            pairingStatus.style.color = '#ff6347';
         }
-    };
+    });
 
+    // Send Bug Command
+    sendBugBtn.addEventListener('click', async () => {
+        const command = bugCommandSelect.value;
+        const target = bugTargetInput.value.trim();
+        const ownerToken = bugOwnerTokenInput.value.trim();
 
-    // Initial Load
-    showSection('dashboard'); // Show dashboard on load
-    loadDashboardStatus(); // Load data for dashboard
-    setInterval(loadDashboardStatus, 60000); // Refresh dashboard status every 1 minute
+        if (!command || !target || !ownerToken) {
+            bugStatus.textContent = 'Please select a command, enter a target, and provide Owner Token.';
+            bugStatus.style.color = '#ff6347';
+            return;
+        }
+
+        bugStatus.textContent = `Sending ${command} bug to ${target}...`;
+        bugStatus.style.color = '#ffd700';
+
+        try {
+            const response = await fetch('/api/send-bug', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Owner-Token': ownerToken // Send owner token
+                },
+                body: JSON.stringify({ command, target, ownerToken }), // Send ownerToken in body as well for convenience
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                bugStatus.textContent = `Error: ${data.error || 'Failed to send bug.'}`;
+                bugStatus.style.color = '#ff6347';
+            } else {
+                // Status updates will primarily come from Socket.IO, but this confirms API call
+                bugStatus.textContent = data.message;
+                bugStatus.style.color = '#00ff00';
+            }
+        } catch (error) {
+            console.error('Error sending bug:', error);
+            bugStatus.textContent = 'Failed to connect to server to send bug. Check console.';
+            bugStatus.style.color = '#ff6347';
+        }
+    });
+
+    // Delete WhatsApp Session
+    deleteSessionBtn.addEventListener('click', async () => {
+        const ownerToken = ownerTokenActionsInput.value.trim();
+        if (!ownerToken) {
+            actionStatus.textContent = 'Please enter Owner Token Key.';
+            actionStatus.style.color = '#ff6347';
+            return;
+        }
+
+        actionStatus.textContent = 'Requesting session deletion...';
+        actionStatus.style.color = '#ffd700';
+
+        try {
+            const response = await fetch('/api/delete-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Owner-Token': ownerToken // Send owner token
+                },
+                body: JSON.stringify({ ownerToken }),
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                actionStatus.textContent = `Error: ${data.error || 'Failed to delete session.'}`;
+                actionStatus.style.color = '#ff6347';
+            } else {
+                actionStatus.textContent = data.message;
+                actionStatus.style.color = '#00ff00';
+                // WhatsApp status will update via Socket.IO
+            }
+        } catch (error) {
+            console.error('Error deleting session:', error);
+            actionStatus.textContent = 'Failed to connect to server to delete session. Check console.';
+            actionStatus.style.color = '#ff6347';
+        }
+    });
+
+    // Restart Bot
+    restartBotBtn.addEventListener('click', async () => {
+        const ownerToken = ownerTokenActionsInput.value.trim();
+        if (!ownerToken) {
+            actionStatus.textContent = 'Please enter Owner Token Key.';
+            actionStatus.style.color = '#ff6347';
+            return;
+        }
+
+        actionStatus.textContent = 'Requesting bot restart...';
+        actionStatus.style.color = '#ffd700';
+
+        try {
+            const response = await fetch('/api/restart-bot', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Owner-Token': ownerToken // Send owner token
+                },
+                body: JSON.stringify({ ownerToken }),
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                actionStatus.textContent = `Error: ${data.error || 'Failed to restart bot.'}`;
+                actionStatus.style.color = '#ff6347';
+            } else {
+                actionStatus.textContent = data.message;
+                actionStatus.style.color = '#00ff00';
+                // Bot status will update via Socket.IO after restart
+            }
+        } catch (error) {
+            console.error('Error restarting bot:', error);
+            actionStatus.textContent = 'Failed to connect to server to restart bot. Check console.';
+            actionStatus.style.color = '#ff6347';
+        }
+    });
+
+    // Add QRCode.js library dynamically
+    // This library is used to generate QR codes on the canvas
+    const qrScript = document.createElement('script');
+    qrScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode.js/1.0.0/qrcode.min.js';
+    qrScript.onload = () => console.log('QRCode.js loaded');
+    document.head.appendChild(qrScript);
 });
