@@ -1,4 +1,4 @@
-/* public/css/style.css */
+/* style.css */
 
 /* General Styling */
 :root {
@@ -42,7 +42,7 @@ ul {
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;
     border: none;
-    white-space: nowrap; /* Prevent button text from wrapping */
+    white-space: nowrap;
 }
 
 .btn-primary {
@@ -69,11 +69,11 @@ ul {
     width: 20px;
     height: 20px;
     margin-right: 8px;
-    filter: invert(1); /* For white icons on dark background */
+    filter: invert(1);
 }
 
 .btn-icon.whatsapp-icon {
-    filter: none; /* Keep original color for WhatsApp icon */
+    filter: none;
     width: 24px;
     height: 24px;
 }
@@ -148,7 +148,7 @@ ul {
 /* Hero Section */
 .hero {
     height: 70vh;
-    background: url('/images/background.jpg') no-repeat center center/cover;
+    background: url('images/background.jpg') no-repeat center center/cover;
     display: flex;
     align-items: center;
     padding-top: 80px;
@@ -270,7 +270,7 @@ section h2 {
     justify-content: center;
     gap: 15px;
     margin-bottom: 20px;
-    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    flex-wrap: wrap;
 }
 
 .pairing-form input, .bug-form input, .bug-form select, .owner-actions-content input {
@@ -285,20 +285,19 @@ section h2 {
 }
 
 .bug-form select {
-    appearance: none; /* Remove default select arrow */
+    appearance: none;
     background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23e5e5e5%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13%205.7L146.2%20268.7%2018.8%2075.1c-4.7-5.2-12.2-7.9-19.5-7.9-7.3%200-14.8%202.7-19.5%207.9L5%2087.3c-4.7%205.2-4.7%2013.7%200%2018.9l132.7%20140.2c4.7%205.2%2012.2%207.9%2019.5%207.9%207.3%200%2014.8-2.7%2019.5-7.9l132.7-140.2c4.7-5.2%204.7-13.7%200-18.9l-7.2-7.6z%22%2F%3E%3C%2Fsvg%3E');
     background-repeat: no-repeat;
     background-position: right 10px center;
     background-size: 12px;
-    padding-right: 30px; /* Space for the custom arrow */
+    padding-right: 30px;
 }
-
 
 .status-message {
     margin-top: 15px;
     font-size: 1.1em;
     font-weight: bold;
-    color: #ffd700; /* Gold for status */
+    color: #ffd700;
 }
 
 .code-display {
@@ -308,7 +307,7 @@ section h2 {
     border-radius: 5px;
     font-family: 'Courier New', monospace;
     font-size: 1.4em;
-    color: #00ff00; /* Green for code */
+    color: #00ff00;
     word-break: break-all;
     text-align: center;
 }
