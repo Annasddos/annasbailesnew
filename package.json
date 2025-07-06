@@ -1,0 +1,26 @@
+{
+  "name": "one-click-crash",
+  "version": "4.0.0-remake",
+  "description": "Hello Stranger",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "github:seiren-primrose/PL-Baileys",
+    "@octokit/rest": "latest",
+    "axios": "^1.6.0",
+    "body-parser": "^1.20.3", // Pastikan ini ada
+    "chalk": "^4.1.2",
+    "crypto": "latest",
+    "express": "^4.19.2", // Pastikan ini ada
+    "fs": "latest",
+    "moment-timezone": "latest",
+    "open": "^9.1.0",
+    "pino": "^9.5.0",
+    "readline-sync": "^1.4.10",
+    "telegraf": "^4.16.3"
+  },
+  "author": "MikasaCloud",
+  "license": "MIT"
+}

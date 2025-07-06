@@ -3,296 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Payment Gateway | KepfoЯannaS Official</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <title>💥 One Click Crash Panel - Alpooooooofoluv</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="https://i.ibb.co/yRrZqCT/logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
+    <div class="background-animation"></div>
 
-    <div class="splash-screen" id="splashScreen">
-        <div class="splash-logo-wrapper">
-            <img src="https://files.catbox.moe/zams2g.jpeg" alt="Welcome Logo" class="splash-screen-logo" width="120" height="120">
-            <div class="logo-circle-glow"></div>
-        </div>
-        <p class="loading-text">Memuat Pengalaman Terbaik...</p>
-        <div class="loading-bar-container">
-            <div class="loading-bar" id="loadingBar"></div>
-        </div>
-    </div>
-
-    <div class="info-notification" id="infoNotification">
-        <div class="notification-content">
-            <img src="https://files.catbox.moe/f1l8o1.gif" alt="Cute Cat" class="cat-animation">
-            <p class="info-text">"Buat akun baru sekarang! Data akun Anda akan tersimpan permanen, akses fitur premium kapan saja."</p>
-        </div>
-    </div>
-
-    <div class="login-register-container" id="loginRegisterContainer">
-        <h2 id="formTitle">Login</h2>
-        <input type="text" id="usernameInput" placeholder="Username" required autocomplete="username">
-        <input type="password" id="passwordInput" placeholder="Password" required autocomplete="current-password">
-        <button id="authButton">Login</button>
-        <p class="register-link" id="toggleAuthMode">Belum punya akun? Buat akun baru</p>
-    </div>
-
-    <div class="particles-container" id="particles"></div>
-
-    <button class="theme-toggle" aria-label="Toggle dark mode">
-        <div class="toggle-track">
-            <div class="toggle-thumb"></div>
-            <div class="toggle-icons">
-                <span class="sun-icon">☀️</span>
-                <span class="moon-icon">🌙</span>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-ghost"></i> One Click Crash
             </div>
-        </div>
-    </button>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="#dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="#pairing"><i class="fas fa-qrcode"></i> WA Pairing</a></li>
+                    <li><a href="#bug-attacks"><i class="fas fa-bug"></i> Bug Attacks</a></li>
+                    <li><a href="#admin-tools"><i class="fas fa-user-shield"></i> Admin Tools</a></li>
+                    <li><a href="#about"><i class="fas fa-info-circle"></i> About</a></li>
+                </ul>
+            </nav>
+        </header>
 
-    <main class="container" style="display: none;">
-        <section class="intro-screen" id="introScreen">
-            <div class="intro-card">
-                <div class="card-glow"></div>
-                <div class="profile-section">
-                    <div class="profile-photo">
-                        <div class="profile-ring"></div>
-                        <div class="profile-avatar">
-                            <img src="https://files.catbox.moe/zams2g.jpeg" alt="Profile Photo" class="profile-image" />
-                        </div>
-                    </div>
-                    <div class="status-badge">Premium</div>
+        <main class="main-content">
+            <section id="dashboard" class="dashboard-section active">
+                <div class="hero-section">
+                    <h1>Selamat Datang di Panel OCC!</h1>
+                    <p>Kendali penuh atas operasi crashing Anda.</p>
+                    <button class="btn btn-primary" onclick="scrollToSection('pairing')">Mulai Pairing</button>
+                    <button class="btn btn-secondary" onclick="scrollToSection('bug-attacks')">Kirim Bug</button>
                 </div>
 
-                <h1 class="name">
-                    <span class="name-gradient">KepfoЯannaS</span>
-                </h1>
-                <p class="bio">Spesialis pembayaran digital aman yang menyediakan pengalaman transaksi mulus dengan teknologi mutakhir dan keamanan tingkat perusahaan. Meningkatkan kebebasan finansial Anda dengan gaya!</p>
-
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <div class="stat-number" id="uptimeValue"></div>
-                        <div class="stat-label">Uptime</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="supportValue"></div>
-                        <div class="stat-label">Support</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="encryptionValue"></div>
-                        <div class="stat-label">Encryption</div>
-                    </div>
-                </div>
-
-                <button class="cta-button" id="openPaymentSlide">
-                    <span class="button-bg"></span>
-                    <span class="button-content">
-                        <svg class="button-icon" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/>
-                        </svg>
-                        Go to Payment Methods
-                        <svg class="arrow-icon" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
-                        </svg>
-                    </span>
-                </button>
-
-                <button class="cta-button sosmed-button" id="openSosmedSlide">
-                    <span class="button-bg"></span>
-                    <span class="button-content">
-                        <svg class="button-icon" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
-                        </svg>
-                        Connect via Social Media
-                        <svg class="arrow-icon" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
-                        </svg>
-                    </span>
-                </button>
-
-                <button class="cta-button logout-button" id="logoutButton">
-                    <span class="button-bg"></span>
-                    <span class="button-content">
-                        <svg class="button-icon" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5-5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
-                        </svg>
-                        Logout
-                        <svg class="arrow-icon" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
-                        </svg>
-                    </span>
-                </button>
-            </div>
-        </section>
-
-        <aside class="payment-slide" id="paymentSlide">
-            <div class="slide-backdrop"></div>
-            <div class="slide-content">
-                <div class="slide-header">
-                    <button class="close-button" id="closePaymentSlide" aria-label="Close payment gateway">
-                        <svg viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-                        </svg>
-                    </button>
-                    <div class="slide-title-section">
-                        <h2 class="slide-title">Metode Pembayaran</h2>
-                        <p class="slide-subtitle">Pilih metode pembayaran pilihan Anda</p>
-                    </div>
-                </div>
-
-                <div class="payment-methods">
-                    <div class="payment-card dana-card" data-status="ready">
-                        <div class="card-shine"></div>
-                        <div class="payment-header">
-                            <div class="payment-brand">
-                                <div class="brand-icon dana-icon">D</div>
-                                <span class="brand-name">DANA</span>
-                            </div>
-                            <button class="copy-button" data-copy="083173814158" aria-label="Copy DANA number">
-                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-                                </svg>
-                            </button>
+                <div class="status-overview">
+                    <h2>Status Bot & Sistem</h2>
+                    <div class="status-grid">
+                        <div class="status-item">
+                            <i class="fas fa-wifi"></i>
+                            <strong>WA Status:</strong> <span id="waStatus">Memuat...</span>
                         </div>
-                        <div class="payment-code">
-                            <span class="code-label">Nomor Akun</span>
-                            <span class="code-value">083173814158</span>
+                        <div class="status-item">
+                            <i class="fas fa-phone"></i>
+                            <strong>WA Number:</strong> <span id="linkedNumber">-</span>
                         </div>
-                        <div class="card-footer">
-                            <button class="status-toggle" data-method="dana">
-                                <span class="status-indicator ready"></span>
-                                <span class="status-text">Siap</span>
-                            </button>
+                        <div class="status-item">
+                            <i class="fas fa-desktop"></i>
+                            <strong>Platform:</strong> <span id="platform">-</span>
                         </div>
-                    </div>
-
-                    <div class="payment-card gopay-card" data-status="ready">
-                        <div class="card-shine"></div>
-                        <div class="payment-header">
-                            <div class="payment-brand">
-                                <div class="brand-icon gopay-icon">G</div>
-                                <span class="brand-name">GoPay</span>
-                            </div>
-                            <button class="copy-button" data-copy="083173814158" aria-label="Copy GoPay number">
-                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-                                </svg>
-                            </button>
+                        <div class="status-item">
+                            <i class="fas fa-microchip"></i>
+                            <strong>CPU:</strong> <span id="cpu">-</span>
                         </div>
-                        <div class="payment-code">
-                            <span class="code-label">Nomor Telepon</span>
-                            <span class="code-value">083173814158</span>
+                        <div class="status-item">
+                            <i class="fas fa-laptop-code"></i>
+                            <strong>Hostname:</strong> <span id="hostname">-</span>
                         </div>
-                        <div class="card-footer">
-                            <button class="status-toggle" data-method="gopay">
-                                <span class="status-indicator ready"></span>
-                                <span class="status-text">Siap</span>
-                            </button>
+                        <div class="status-item">
+                            <i class="fas fa-hourglass-half"></i>
+                            <strong>Bot Uptime:</strong> <span id="botUptime">-</span>
                         </div>
-                    </div>
-
-                    <div class="qris-card">
-                        <div class="card-shine"></div>
-                        <div class="qris-header">
-                            <div class="qris-brand">
-                                <div class="qris-icon">
-                                    <svg viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M3 11h8V3H3v8zm2-6h4v4H5V5zM13 3v8h8V3h-8zm6 6h-4V5h4v4zM3 21h8v-8H3v8zm2-6h4v4H5v-4z"/>
-                                        <path d="M18 13h-2v2h2v-2zM20 15h-2v2h2v-2zM22 13h-2v2h2v-2zM18 17h-2v2h2v-2zM20 19h-2v2h2v-2zM22 17h-2v2h2v-2z"/>
-                                    </svg>
-                                </div>
-                                <div class="qris-info">
-                                    <span class="qris-title">Pembayaran QRIS</span>
-                                    <span class="qris-subtitle">Pindai untuk membayar instan</span>
-                                </div>
-                            </div>
-                            <button class="download-button" id="downloadQris" aria-label="Download QRIS code">
-                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                                </svg>
-                            </button>
+                        <div class="status-item">
+                            <i class="fas fa-clock"></i>
+                            <strong>Process Uptime:</strong> <span id="processUptime">-</span>
                         </div>
-                        <div class="qris-preview">
-                            <div class="qr-code">
-                                <img src="https://files.catbox.moe/wjyhfw.jpg" alt="QRIS Payment Code" class="qr-image" />
-                            </div>
+                        <div class="status-item">
+                            <i class="fas fa-crown"></i>
+                            <strong>Premium Users:</strong> <span id="premiumCount">-</span>
+                        </div>
+                        <div class="status-item">
+                            <i class="fas fa-users-cog"></i>
+                            <strong>Admin Users:</strong> <span id="adminCount">-</span>
                         </div>
                     </div>
                 </div>
-            </div>
-        </aside>
+            </section>
 
-        <aside class="payment-slide social-media-slide" id="socialMediaSlide">
-            <div class="slide-backdrop"></div>
-            <div class="slide-content">
-                <div class="slide-header">
-                    <button class="close-button" id="closeSosmedSlide" aria-label="Close social media">
-                        <svg viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-                        </svg>
-                    </button>
-                    <div class="slide-title-section">
-                        <h2 class="slide-title">Terhubung dengan Kami!</h2>
-                        <p class="slide-subtitle">Temukan kami di platform favorit Anda.</p>
+            <section id="pairing" class="card">
+                <h2><i class="fas fa-qrcode"></i> WA Pairing</h2>
+                <form id="pairingForm">
+                    <div class="input-group">
+                        <label for="waNumberInput">Nomor WhatsApp:</label>
+                        <input type="text" id="waNumberInput" placeholder="Contoh: 6281234567890" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Generate Pairing Code</button>
+                </form>
+                <div id="pairingResult" class="result-box">⏳ Menunggu input nomor...</div>
+            </section>
+
+            <section id="bug-attacks" class="card">
+                <h2><i class="fas fa-bug"></i> Bug Attacks</h2>
+                <form id="bugForm">
+                    <div class="input-group">
+                        <label for="targetNumberInput">Nomor Target WhatsApp:</label>
+                        <input type="text" id="targetNumberInput" placeholder="Contoh: 6281234567890 atau 1234567890@newsletter" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="bugTypeSelect">Pilih Jenis Bug:</label>
+                        <select id="bugTypeSelect" required>
+                            <option value="">-- Pilih Bug --</option>
+                            <option value="comeon">Come On (Delay Duration + Blank)</option>
+                            <option value="getout">Get Out (Delay Invisible)</option>
+                            <option value="loving">Loving (Duration Hours)</option>
+                            <option value="shibal">Shibal (Low Delay Invis)</option>
+                            <option value="exsecute">Exsecute (High Delay Invis)</option>
+                            <option value="crashch">Crash Channel (Newsletter)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-danger"><i class="fas fa-radiation"></i> Kirim Bug Sekarang!</button>
+                </form>
+                <div id="bugResult" class="result-box">🌀 Menunggu perintah kirim bug...</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="bugProgressBar"></div>
+                </div>
+                <div id="bugProgressText" class="progress-text">0% Selesai</div>
+            </section>
+
+            <section id="admin-tools" class="card">
+                <h2><i class="fas fa-user-shield"></i> Admin & Owner Tools</h2>
+                <p class="warning-text"><i class="fas fa-exclamation-triangle"></i> Fitur ini hanya untuk Owner/Admin. Masukkan Owner Token Anda untuk akses.</p>
+                <div class="input-group">
+                    <label for="ownerTokenInput">Owner Token:</label>
+                    <input type="password" id="ownerTokenInput" placeholder="Masukkan token rahasia Anda">
+                </div>
+
+                <div class="tool-section">
+                    <h3>Premium User Management</h3>
+                    <div class="input-group">
+                        <input type="text" id="premiumUserId" placeholder="ID Pengguna Telegram">
+                        <button class="btn btn-success" onclick="callAdminTool('addprem')"><i class="fas fa-plus-circle"></i> Add Prem</button>
+                        <button class="btn btn-warning" onclick="callAdminTool('delprem')"><i class="fas fa-minus-circle"></i> Del Prem</button>
                     </div>
                 </div>
 
-                <div class="social-links-grid">
-                    <a href="https://wa.me/6283173814158" target="_blank" class="social-link-card whatsapp-card">
-                        <div class="card-shine"></div>
-                        <div class="social-icon-large">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
-                        </div>
-                        <span class="social-name">WhatsApp Chat</span>
-                    </a>
-                    <a href="https://t.me/Alpooooooofoluv" target="_blank" class="social-link-card telegram-card">
-                        <div class="card-shine"></div>
-                        <div class="social-icon-large">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram">
-                        </div>
-                        <span class="social-name">Telegram Chat</span>
-                    </a>
-                    <a href="https://t.me/YOUR_TELEGRAM_CHANNEL" target="_blank" class="social-link-card telegram-channel-card">
-                        <div class="card-shine"></div>
-                        <div class="social-icon-large">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram Channel">
-                        </div>
-                        <span class="social-name">Saluran Telegram</span>
-                    </a>
+                <div class="tool-section">
+                    <h3>Admin User Management</h3>
+                    <div class="input-group">
+                        <input type="text" id="adminUserId" placeholder="ID Pengguna Telegram">
+                        <button class="btn btn-success" onclick="callAdminTool('addadmin')"><i class="fas fa-user-plus"></i> Add Admin</button>
+                        <button class="btn btn-warning" onclick="callAdminTool('deladmin')"><i class="fas fa-user-minus"></i> Del Admin</button>
+                    </div>
                 </div>
-            </div>
-        </aside>
 
-    </main>
+                <div class="tool-section">
+                    <h3>Bot Control</h3>
+                    <div class="input-group">
+                        <input type="text" id="cooldownDuration" placeholder="Durasi Cooldown (e.g., 60s, 5m)">
+                        <button class="btn btn-info" onclick="callAdminTool('setjeda')"><i class="fas fa-hourglass-end"></i> Set Cooldown</button>
+                    </div>
+                    <button class="btn btn-danger" onclick="callAdminTool('delsesi')"><i class="fas fa-trash-alt"></i> Delete Session</button>
+                    <button class="btn btn-danger" onclick="callAdminTool('restart')"><i class="fas fa-redo-alt"></i> Restart Bot</button>
+                </div>
+                <div id="adminToolResult" class="result-box"></div>
+            </section>
 
-    <div class="user-status-section" id="userStatusSection">
-        <span class="user-status-indicator" id="myStatusIndicator"></span>
-        <div class="status-info">
-            <span>ID Saya: <strong id="myUserId"></strong></span>
-            <span>Pengguna Lain: <span id="otherUsersStatus">Memeriksa...</span></span>
-        </div>
+            <section id="about" class="card">
+                <h2><i class="fas fa-info-circle"></i> Tentang Kami</h2>
+                <div class="about-content">
+                    <p>One Click Crash adalah proyek yang dibuat oleh **Alpooooooofoluv** dengan tujuan membantu dalam memerangi penipu.</p>
+                    <p>Bot ini tidak ditujukan untuk disalahgunakan terhadap orang yang tidak bersalah.</p>
+                    <p>Proyek ini menggunakan Baileys untuk integrasi WhatsApp dan Telegraf untuk bot Telegram.</p>
+                    <p>Terima kasih kepada semua yang telah mendukung proyek ini!</p>
+                    <div class="contact-info">
+                        <h3>Kontak Developer:</h3>
+                        <ul>
+                            <li><i class="fab fa-telegram"></i> Telegram 1: <a href="https://t.me/Alpooooooofoluv" target="_blank">@Alpooooooofoluv</a></li>
+                            <li><i class="fab fa-telegram"></i> Telegram 2: <a href="https://t.me/Alpooooooofoluv" target="_blank">@Alpooooooofoluv</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; <span id="currentYear"></span> Alpooooooofoluv. Protected System. All rights reserved.</p>
+        </footer>
     </div>
 
-    <div class="social-media-container fixed-top-right">
-        <a href="https://wa.me/6283173814158" target="_blank" class="social-media-icon" aria-label="WhatsApp">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
-        </a>
-        <a href="https://t.me/Alpooooooofoluv" target="_blank" class="social-media-icon" aria-label="Telegram">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram">
-        </a>
-    </div>
-
-    <div class="toast" id="toast">
-        <div class="toast-icon"></div>
-        <div class="toast-content">
-            <div class="toast-title"></div>
-            <div class="toast-message"></div>
-        </div>
-    </div>
-
-    <audio id="gatewayAudio" preload="auto">
-        <source src="https://files.catbox.moe/6j7rug.mp3" type="audio/mp4">
-    </audio>
-
-    <script src="app.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
