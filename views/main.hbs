@@ -1,1 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" href="/images/bot_logo.png" type="image/x-icon">
+</head>
+<body>
+    <header class="navbar">
+        <div class="navbar-left">
+            <img src="/images/netflix_logo.png" alt="Netflix Logo" class="logo">
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="#commands">Commands</a></li>
+                    <li><a href="#pairing">WhatsApp Pairing</a></li>
+                    <li><a href="https://t.me/Alpooooooofoluv" target="_blank">Chat with Bot</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="navbar-right">
+            <input type="text" placeholder="Search...">
+            <button class="profile-btn">
+                <img src="/images/profile_avatar.png" alt="Profile" class="profile-avatar">
+            </button>
+        </div>
+    </header>
 
+    <main>
+        {{{body}}}
+    </main>
+
+    <footer class="footer">
+        <p>&copy; {{currentYear}} Mikasa Cloud. All Rights Reserved.</p>
+    </footer>
+
+    <script src="/socket.io/socket.io.js"></script> <script src="/js/script.js"></script>
+</body>
+</html>
