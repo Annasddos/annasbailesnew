@@ -6,7 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
     const commandListDiv = document.getElementById('commandList');
     const phoneNumberInput = document.getElementById('phoneNumberInput');
-    // const ownerAccessKeyInput = document.getElementById('ownerAccessKeyInput'); // Dihapus dari sini
     const requestPairingBtn = document.getElementById('requestPairingBtn');
     const connectionStatus = document.getElementById('connectionStatus');
     const pairingStatus = document.getElementById('pairingStatus');
@@ -14,13 +13,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const qrCodeCanvas = document.getElementById('qrCodeCanvas');
     const bugCommandSelect = document.getElementById('bugCommandSelect');
     const bugTargetInput = document.getElementById('bugTargetInput');
-    // const bugOwnerAccessKeyInput = document.getElementById('bugOwnerAccessKeyInput'); // Dihapus dari sini
     const sendBugBtn = document.getElementById('sendBugBtn');
     const bugStatus = document.getElementById('bugStatus');
-    // const ownerAccessKeyActionsInput = document.getElementById('ownerAccessKeyActionsInput'); // Dihapus dari sini
     const deleteSessionBtn = document.getElementById('deleteSessionBtn');
     const restartBotBtn = document.getElementById('restartBotBtn');
     const actionStatus = document.getElementById('actionStatus');
+    const whatsappGlobalStatus = document.getElementById('whatsappGlobalStatus'); // For global status display
+    const telegramStatus = document.getElementById('telegramStatus'); // For global status display
+
 
     // Bot Commands to display (static for now, can be fetched from API later)
     const commands = [
@@ -100,6 +100,9 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Disconnected from server via WebSocket');
         connectionStatus.textContent = 'WhatsApp Status: Disconnected from server.';
         connectionStatus.style.color = '#ff6347';
+        telegramStatus.textContent = 'OFF';
+        telegramStatus.classList.remove('status-online');
+        telegramStatus.classList.add('status-disconnected');
     });
 
     socket.on('whatsapp-qr', (data) => {
@@ -107,6 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
         pairingStatus.style.color = '#ffd700';
         pairingCodeDisplay.textContent = data.qrCode; 
         drawQrCode(data.qrCode); 
+        updateGlobalWhatsappStatus(data.status);
     });
 
     socket.on('whatsapp-pairing-code', (data) => {
@@ -131,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
             pairingCodeDisplay.textContent = '';
             if (qrCodeCanvas) qrCodeCanvas.style.display = 'none';
         }
+        updateGlobalWhatsappStatus(data.status);
     });
 
     socket.on('whatsapp-pairing-error', (data) => {
@@ -138,6 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
         pairingStatus.style.color = '#ff6347';
         pairingCodeDisplay.textContent = '';
         if (qrCodeCanvas) qrCodeCanvas.style.display = 'none';
+        updateGlobalWhatsappStatus('ERROR');
     });
 
     socket.on('bug-progress', (data) => {
@@ -152,7 +158,37 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.on('bot-status', (data) => {
         actionStatus.textContent = `Bot Status: ${data.message}`;
         actionStatus.style.color = data.status === 'restarting' ? '#ffd700' : '#00ff00';
+        if (data.status === 'restarting') {
+             telegramStatus.textContent = 'RESTARTING';
+             telegramStatus.classList.remove('status-online');
+             telegramStatus.classList.add('status-connecting');
+        }
     });
+
+    socket.on('bot-status-overall', (data) => {
+        updateGlobalWhatsappStatus(data.whatsapp);
+        telegramStatus.textContent = data.telegram;
+        if (data.telegram === 'ON') {
+            telegramStatus.classList.remove('status-disconnected', 'status-connecting');
+            telegramStatus.classList.add('status-online');
+        } else {
+            telegramStatus.classList.remove('status-online', 'status-connecting');
+            telegramStatus.classList.add('status-disconnected');
+        }
+    });
+
+    // Helper to update global WhatsApp status display
+    function updateGlobalWhatsappStatus(status) {
+        whatsappGlobalStatus.textContent = status;
+        whatsappGlobalStatus.classList.remove('status-online', 'status-connecting', 'status-disconnected', 'status-error', 'status-logged-out');
+        if (status === 'CONNECTED' || status === 'Successfully') {
+            whatsappGlobalStatus.classList.add('status-online');
+        } else if (status === 'SCAN_QR_CODE' || status === 'Pairing Initiated' || status === 'RECONNECTING') {
+            whatsappGlobalStatus.classList.add('status-connecting');
+        } else if (status === 'DISCONNECTED' || status === 'LOGGED_OUT' || status === 'ERROR' || status === 'Session Deleted') {
+            whatsappGlobalStatus.classList.add('status-disconnected');
+        }
+    }
 
 
     // --- API Interactions ---
@@ -196,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const phoneNumber = phoneNumberInput.value.trim();
 
         if (!phoneNumber) {
-            pairingStatus.textContent = 'Mohon masukkan nomor telepon.'; // Pesan disederhanakan
+            pairingStatus.textContent = 'Mohon masukkan nomor telepon.'; 
             pairingStatus.style.color = '#ff6347';
             pairingCodeDisplay.textContent = '';
             if (qrCodeCanvas) qrCodeCanvas.style.display = 'none';
@@ -208,7 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
         pairingCodeDisplay.textContent = '';
         if (qrCodeCanvas) qrCodeCanvas.style.display = 'none';
 
-        await makeApiRequest('/api/request-pairing', 'POST', { phoneNumber }, pairingStatus); // Body disederhanakan
+        await makeApiRequest('/api/request-pairing', 'POST', { phoneNumber }, pairingStatus); 
     });
 
     // Send Bug Command (without owner token input)
@@ -217,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const target = bugTargetInput.value.trim();
 
         if (!command || !target) {
-            bugStatus.textContent = 'Mohon pilih perintah dan masukkan target.'; // Pesan disederhanakan
+            bugStatus.textContent = 'Mohon pilih perintah dan masukkan target.'; 
             bugStatus.style.color = '#ff6347';
             return;
         }
@@ -225,7 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
         bugStatus.textContent = `Mengirim bug ${command} ke ${target}...`;
         bugStatus.style.color = '#ffd700';
 
-        await makeApiRequest('/api/send-bug', 'POST', { command, target }, bugStatus); // Body disederhanakan
+        await makeApiRequest('/api/send-bug', 'POST', { command, target }, bugStatus); 
     });
 
     // Delete WhatsApp Session (without owner token input)
@@ -233,7 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
         actionStatus.textContent = 'Meminta penghapusan sesi...';
         actionStatus.style.color = '#ffd700';
 
-        await makeApiRequest('/api/delete-session', 'POST', {}, actionStatus); // Body disederhanakan
+        await makeApiRequest('/api/delete-session', 'POST', {}, actionStatus); 
     });
 
     // Restart Bot (without owner token input)
@@ -241,7 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
         actionStatus.textContent = 'Meminta restart bot...';
         actionStatus.style.color = '#ffd700';
 
-        await makeApiRequest('/api/restart-bot', 'POST', {}, actionStatus); // Body disederhanakan
+        await makeApiRequest('/api/restart-bot', 'POST', {}, actionStatus); 
     });
 
     // QRCode.js is loaded via CDN link in index.html

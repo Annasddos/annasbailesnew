@@ -123,14 +123,7 @@ ul {
     gap: 20px;
 }
 
-.navbar-right input {
-    background-color: var(--netflix-light-dark);
-    border: 1px solid #333;
-    padding: 8px 15px;
-    border-radius: 4px;
-    color: var(--text-color);
-    font-size: 0.95em;
-}
+/* Search bar dihapus */
 
 .navbar-right .profile-btn {
     background: none;
@@ -145,13 +138,53 @@ ul {
     object-fit: cover;
 }
 
+/* Bot Status Section */
+.bot-status-section {
+    position: fixed;
+    top: 75px; /* Di bawah navbar */
+    left: 0;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 10px 50px;
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    font-size: 0.9em;
+    color: var(--text-color);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.status-indicator span:first-child {
+    font-weight: bold;
+    color: var(--text-secondary-color);
+}
+
+.status-online {
+    color: #00ff00; /* Green */
+}
+
+.status-connecting {
+    color: #ffd700; /* Gold */
+}
+
+.status-disconnected, .status-error, .status-logged-out {
+    color: #ff6347; /* Tomato red */
+}
+
 /* Hero Section */
 .hero {
     height: 70vh;
     background: url('images/background.jpg') no-repeat center center/cover;
     display: flex;
     align-items: center;
-    padding-top: 80px;
+    padding-top: 130px; /* Menyesuaikan dengan status bar */
     position: relative;
 }
 
@@ -273,7 +306,7 @@ section h2 {
     flex-wrap: wrap;
 }
 
-.pairing-form input, .bug-form input, .bug-form select, .owner-actions-content input {
+.pairing-form input, .bug-form input, .bug-form select { /* ownerAccessKey input dihapus */
     flex-grow: 1;
     max-width: 350px;
     padding: 12px 15px;
@@ -312,6 +345,18 @@ section h2 {
     text-align: center;
 }
 
+.close-btn {
+    margin-top: 20px;
+    padding: 8px 15px;
+    font-size: 0.9em;
+    background-color: #555;
+    color: white;
+}
+.close-btn:hover {
+    background-color: #777;
+}
+
+
 /* Footer */
 .footer {
     text-align: center;
@@ -344,6 +389,13 @@ section h2 {
     .navbar-right {
         width: 100%;
         justify-content: flex-end;
+    }
+
+    .bot-status-section {
+        top: 60px; /* Adjust for smaller screens */
+        padding: 8px 20px;
+        flex-direction: column;
+        gap: 5px;
     }
 
     .hero-content {

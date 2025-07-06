@@ -9,7 +9,7 @@ const Handlebars = require('handlebars');
 const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-access');
 
 // Import bot logic from index.js
-const { bot, startSesi, setSocketIO, Mikasa, bugCommands, deleteSession } = require('./index.js');
+const { bot, startSesi, setSocketIO, getWhatsAppStatus, Mikasa, bugCommands, deleteSession } = require('./index.js'); // validateBotToken dihapus
 const config = require('./config.js');
 
 const app = express();
@@ -25,11 +25,13 @@ const handlebars = allowInsecurePrototypeAccess(Handlebars);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const noAuthMiddleware = (req, res, next) => next(); // Middleware tanpa otentikasi
+// Middleware tanpa otentikasi owner di web (sesuai permintaan)
+const noAuthMiddleware = (req, res, next) => next(); 
 
 // --- API Endpoints ---
 
-app.post('/api/request-pairing', noAuthMiddleware, async (req, res) => {
+// Endpoint for WhatsApp Pairing via web
+app.post('/api/request-pairing', noAuthMiddleware, async (req, res) => { 
     const { phoneNumber } = req.body;
     const socketId = req.headers['x-socket-id'];
 
@@ -65,7 +67,7 @@ app.post('/api/request-pairing', noAuthMiddleware, async (req, res) => {
             io.to(socketId).emit('whatsapp-status', { status: 'Pairing Initiated', message: 'Memulai proses pairing WhatsApp...' });
         }
 
-        await Mikasa.requestPairingCode(cleanedPhoneNumber, "MIKASAAA");
+        await Mikasa.requestPairingCode(cleanedPhoneNumber, "12345678");
         
         res.json({ status: 'success', message: 'Pairing process initiated. Check dashboard for code/QR.' });
 
@@ -78,12 +80,13 @@ app.post('/api/request-pairing', noAuthMiddleware, async (req, res) => {
     }
 });
 
-app.post('/api/send-bug', noAuthMiddleware, async (req, res) => {
-    const { command, target } = req.body;
+// Endpoint to trigger bug commands from web
+app.post('/api/send-bug', noAuthMiddleware, async (req, res) => { 
+    const { command, target } = req.body; 
     const socketId = req.headers['x-socket-id'];
 
     if (!command || !target) {
-        return res.status(400).json({ error: 'Command and target are required.' });
+        return res.status(400).json({ error: 'Command and target are required.' }); 
     }
 
     let formattedTarget = target.replace(/[^0-9]/g, "");
@@ -118,7 +121,8 @@ app.post('/api/send-bug', noAuthMiddleware, async (req, res) => {
     }
 });
 
-app.post('/api/delete-session', noAuthMiddleware, async (req, res) => {
+// Endpoint to delete WhatsApp session
+app.post('/api/delete-session', noAuthMiddleware, async (req, res) => { 
     const socketId = req.headers['x-socket-id'];
     try {
         const success = deleteSession(); 
@@ -136,7 +140,8 @@ app.post('/api/delete-session', noAuthMiddleware, async (req, res) => {
     }
 });
 
-app.post('/api/restart-bot', noAuthMiddleware, async (req, res) => {
+// Endpoint to restart the bot process
+app.post('/api/restart-bot', noAuthMiddleware, async (req, res) => { 
     const socketId = req.headers['x-socket-id'];
     try {
         if (io && socketId) {
@@ -151,40 +156,56 @@ app.post('/api/restart-bot', noAuthMiddleware, async (req, res) => {
     }
 });
 
+// --- Serve HTML, CSS, JS directly from root ---
 app.use(express.static(path.join(__dirname))); 
 
+// Home route to render the dashboard
 app.get('/', (req, res) => {
-    res.send(compiledTemplate({ 
+    res.send(htmlTemplate({ 
         title: 'Mikasa Cloud - Bot Dashboard',
-        currentYear: new Date().getFullYear()
+        currentYear: new Date().getFullYear(),
+        whatsappStatus: getWhatsAppStatus() // Pass dynamic status to template
     }));
 });
 
+// Serve static CSS file (must match <link href="style.css"> in index.html)
 app.get('/style.css', (req, res) => {
     res.type('text/css');
     res.send(cssContent);
 });
 
+// Serve static JavaScript file (must match <script src="script.js"> in index.html)
 app.get('/script.js', (req, res) => {
     res.type('application/javascript');
     res.send(jsContent);
 });
 
+
+// Socket.IO connection handling
 io.on('connection', (socket) => {
     console.log(chalk.green(`A user connected via WebSocket. Socket ID: ${socket.id}`));
+    // Send the current WhatsApp connection status to the newly connected client
     socket.emit('whatsapp-status', { 
         status: Mikasa && Mikasa.user ? 'Successfully' : 'Disconnected',
         message: Mikasa && Mikasa.user ? 'WhatsApp connected!' : 'WhatsApp disconnected!',
         number: Mikasa && Mikasa.user ? Mikasa.user.id.split(':')[0] : 'N/A'
     });
+    // Send overall bot status
+    socket.emit('bot-status-overall', { 
+        whatsapp: getWhatsAppStatus(), 
+        telegram: 'ON', 
+        message: `Current WA Status: ${getWhatsAppStatus()}`
+    });
+
 
     socket.on('disconnect', () => {
         console.log(chalk.red(`User disconnected from WebSocket. Socket ID: ${socket.id}`));
     });
 });
 
-let htmlTemplateRaw;
-let compiledTemplate;
+
+// ********** Initialize Bot Logic **********
+let htmlTemplate;
 let cssContent;
 let jsContent;
 
@@ -193,15 +214,22 @@ async function initializeApp() {
     console.log(chalk.blue("Starting Mikasa Cloud Bot Dashboard Server..."));
 
     try {
-        htmlTemplateRaw = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
+        htmlTemplate = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
         cssContent = fs.readFileSync(path.join(__dirname, 'style.css'), 'utf8');
         jsContent = fs.readFileSync(path.join(__dirname, 'script.js'), 'utf8');
-        compiledTemplate = handlebars.compile(htmlTemplateRaw); 
+        htmlTemplate = handlebars.compile(htmlTemplate); 
         console.log(chalk.green("Frontend files loaded successfully."));
     } catch (error) {
         console.error(chalk.red("Error loading frontend files:"), error);
         process.exit(1);
     }
+
+    // validateBotToken dihapus
+    // const tokenIsValid = await validateBotToken();
+    // if (!tokenIsValid) {
+    //     console.log(chalk.red("Bot token is invalid. Exiting."));
+    //     process.exit(1);
+    // }
 
     setSocketIO(io); 
     startSesi(); 
@@ -221,6 +249,7 @@ async function initializeApp() {
 
 initializeApp();
 
+// Enable graceful stop for Express and Telegraf bot
 process.once('SIGINT', () => {
     console.log(chalk.yellow('SIGINT received. Shutting down gracefully...'));
     bot.stop('SIGINT');

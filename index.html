@@ -14,12 +14,12 @@
                     <li><a href="/">Home</a></li>
                     <li><a href="#commands">Commands</a></li>
                     <li><a href="#pairing">WhatsApp Pairing</a></li>
-                    <li><a href="https://t.me/Botbugnewincis_bot" target="_blank">Chat with Bot</a></li>
+                    <li><a href="#bug-sender">Go To Bug</a></li>
+                    <li><a href="#owner-actions">Go To Owner</a></li>
                 </ul>
             </nav>
         </div>
         <div class="navbar-right">
-            <input type="text" placeholder="Search...">
             <button class="profile-btn">
                 <img src="images/profile_avatar.png" alt="Profile" class="profile-avatar">
             </button>
@@ -27,16 +27,25 @@
     </header>
 
     <main>
+        <section class="bot-status-section">
+            <div class="status-indicator">
+                <span>Bot Telegram Status:</span> <span id="telegramStatus" class="status-online">ON</span>
+            </div>
+            <div class="status-indicator">
+                <span>WhatsApp Status:</span> <span id="whatsappGlobalStatus" class="status-connecting">{{whatsappStatus}}</span>
+            </div>
+        </section>
+
         <section class="hero">
             <div class="hero-content">
                 <h1>Mikasa Cloud Bot</h1>
                 <p>Your ultimate tool for WhatsApp management and more. Discover powerful features and streamline your experience.</p>
                 <div class="hero-buttons">
                     <a href="https://t.me/Alpooooooofoluv" target="_blank" class="btn btn-primary">
-                        <img src="images/telegram_icon.png" alt="Telegram" class="btn-icon"> Interact on Telegram
+                        <img src="images/telegram_icon.png" alt="Telegram" class="btn-icon"> Interact with Bot
                     </a>
-                    <button class="btn btn-secondary">
-                        <img src="images/info_icon.png" alt="Info" class="btn-icon"> More Info
+                    <button class="btn btn-secondary" onclick="window.location.href='#pairing';">
+                        <img src="images/whatsapp_icon.png" alt="WhatsApp" class="btn-icon whatsapp-icon"> Go To Pairing
                     </button>
                 </div>
             </div>
@@ -62,6 +71,7 @@
                 <div id="pairingStatus" class="status-message"></div>
                 <div id="pairingCodeDisplay" class="code-display"></div>
                 <canvas id="qrCodeCanvas" style="display: none; margin-top: 20px;"></canvas>
+                <button class="btn btn-secondary close-btn" onclick="document.getElementById('pairingCodeDisplay').innerHTML=''; document.getElementById('qrCodeCanvas').style.display='none'; document.getElementById('pairingStatus').innerHTML='';">❌ Close</button>
             </div>
         </section>
 
@@ -85,6 +95,7 @@
                     </button>
                 </div>
                 <div id="bugStatus" class="status-message"></div>
+                <button class="btn btn-secondary close-btn" onclick="document.getElementById('bugStatus').innerHTML='';">❌ Close Status</button>
             </div>
         </section>
 
@@ -95,8 +106,9 @@
                 <div class="action-buttons">
                     <button class="btn btn-secondary" id="deleteSessionBtn">Delete WhatsApp Session</button>
                     <button class="btn btn-secondary" id="restartBotBtn">Restart Bot</button>
-                    </div>
+                </div>
                 <div id="actionStatus" class="status-message"></div>
+                <button class="btn btn-secondary close-btn" onclick="document.getElementById('actionStatus').innerHTML='';">❌ Close Status</button>
             </div>
         </section>
     </main>
@@ -106,6 +118,7 @@
     </footer>
 
     <script src="/socket.io/socket.io.js"></script>
-    <script src="script.js"></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode.js/1.0.0/qrcode.min.js"></script>
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode.js/1.0.0/qrcode.min.js"></script>
 </body>
 </html>
